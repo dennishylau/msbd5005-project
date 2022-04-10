@@ -11,4 +11,5 @@ dependencies:
   - nbformat
   - lxml
   - xlrd
+  - openpyxl
 prefix: /opt/homebrew/Caskroom/miniforge/base/envs/msbd5005

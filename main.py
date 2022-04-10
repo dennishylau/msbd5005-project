@@ -9,7 +9,8 @@ st.set_page_config(layout="wide")
 
 
 # %% World Bank Country Code
-df_country = pd.read_excel('data/CLASS.xls', sheet_name='Groups')
+df_country = pd.read_csv('data/country.csv')
+# %%
 df_country.columns = ['group', 'group_name', 'code', 'name']
 # code to name mappings
 df_group_code = df_country[['group', 'group_name']].drop_duplicates()

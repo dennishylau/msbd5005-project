@@ -1,0 +1,14 @@
+name: msbd5005
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - flake8
+  - plotly
+  - pandas
+  - autopep8
+  - ipykernel
+  - nbformat
+  - lxml
+  - xlrd
+prefix: /opt/homebrew/Caskroom/miniforge/base/envs/msbd5005

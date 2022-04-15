@@ -10,13 +10,9 @@ def preprecess_imf_dot():
 
     years = [x for x in df_imf_dot_raw.columns if bool(re.match(r'^\d{4}$', x))]
 
-    # source = 'China, P.R.: Mainland'
-    # destination = 'United States'
-
     df_imf_dot = (
         df_imf_dot_raw
         .query("Attribute == 'Value'")
-        # .query(f"`Country Name` == '{source}' and `Counterpart Country Name` == '{destination}'")
         .query(
             """`Indicator Name` in [
                 'Goods, Value of Exports, Free on board (FOB), US Dollars',

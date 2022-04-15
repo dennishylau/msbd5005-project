@@ -6,9 +6,11 @@ import re
 def preprecess_imf_dot():
 
     # download this file separately, too large for git
-    df_imf_dot_raw = pd.read_csv('./data/DOT_03-28-2022 04-15-57-36_timeSeries.csv')
+    df_imf_dot_raw = pd.read_csv(
+        './data/DOT_03-28-2022 04-15-57-36_timeSeries.csv')
 
-    years = [x for x in df_imf_dot_raw.columns if bool(re.match(r'^\d{4}$', x))]
+    years = [x for x in df_imf_dot_raw.columns
+             if bool(re.match(r'^\d{4}$', x))]
 
     df_imf_dot = (
         df_imf_dot_raw
@@ -20,7 +22,8 @@ def preprecess_imf_dot():
                 'Goods, Value of Trade Balance, US Dollars'
             ]""".replace('\n', ''))
         .loc[:, ['Country Name', 'Counterpart Country Name', 'Indicator Name'] + years]
-        .dropna(how='all', subset=years))
+        .dropna(how='all', subset=years)
+        .sort_values(['Country Name', 'Counterpart Country Name', 'Indicator Name'], ascending=True))
     df_imf_dot['Indicator Name'].replace({
         'Goods, Value of Exports, Free on board (FOB), US Dollars': 'Export',
         'Goods, Value of Imports, Cost, Insurance, Freight (CIF), US Dollars': 'Import',

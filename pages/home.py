@@ -3,22 +3,49 @@ import streamlit as st
 import numpy as np
 import re
 from cache import dfc_imf_dot
+from constants import IMF_ECON_GROUPS
+from enum import Enum
 
 
-@st.experimental_memo
-def get_countries():
-    'Get country list'
-    return np.sort(dfc_imf_dot['Country Name'].unique())
+class Economies(Enum):
+    COUNTRY_ECONOMIC_GROUP = 'Show Countries and Economic Groups'
+    COUNTRY = 'Only Show Countries'
+    ECONOMIC_GROUP = 'Only Show Economic Groups'
+
+    @property
+    def ui_str(self) -> str:
+        mapping = {
+            'Only Show Countries': 'Country',
+            'Only Show Economic Groups': 'Economic Group',
+            'Show Countries and Economic Groups': 'Country / Economic Group'
+        }
+        return mapping[self.value]
 
 
-@st.experimental_memo
-def get_counterpart_countries(country):
+def get_countries(economies: Economies) -> list[str]:
+    'Show list of countries / economies by `Economies`'
+    df = dfc_imf_dot['Country Name'].unique()
+    sorted_list = np.sort(df).tolist()
+    if economies is Economies.COUNTRY:
+        return [x for x in sorted_list if x not in IMF_ECON_GROUPS]
+    elif economies is Economies.ECONOMIC_GROUP:
+        return [x for x in sorted_list if x in IMF_ECON_GROUPS]
+    else:
+        return sorted_list
+
+
+def get_counterpart_countries(economies: Economies, country: str) -> list[str]:
     'Get counterpart country list based on country'
-    counterpart_countries = (
+    df = (
         dfc_imf_dot
         .query(f"`Country Name` == '{country}'")['Counterpart Country Name']
         .unique())
-    return ['All'] + list(np.sort(counterpart_countries))
+    sorted_list = np.sort(df).tolist()
+    if economies is Economies.COUNTRY:
+        sorted_list = [x for x in sorted_list if x not in IMF_ECON_GROUPS]
+    if economies is Economies.ECONOMIC_GROUP:
+        sorted_list = [x for x in sorted_list if x in IMF_ECON_GROUPS]
+    return ['All'] + list(sorted_list)
 
 
 @st.experimental_memo
@@ -40,21 +67,28 @@ def get_years(country, counterpart_country):
     return min_year, max_year
 
 
-# %%
 def render_home():
     # %%
     # columns
     non_year_cols = ['Country Name', 'Counterpart Country Name',
                      'Indicator Name']
     # filter UI
-    col1, col2, col3 = st.columns([1, 1, 3])
+    col0, col1, col2, col3 = st.columns([1, 1, 1, 3])
+    with col0:
+        economies_opt_str = st.selectbox(
+            'Economies', [x.value for x in Economies])
+        economies = Economies(economies_opt_str)
     with col1:
-        country_list = get_countries()
-        country = st.selectbox('Country', country_list)
+        country_list = get_countries(economies)
+        country = st.selectbox(
+            economies.ui_str,
+            country_list)
     with col2:
-        counterpart_country_list = get_counterpart_countries(country)
+        counterpart_country_list = get_counterpart_countries(
+            economies, country)
         counterpart_country = st.selectbox(
-            'Counterpart Country', counterpart_country_list)
+            f'Counterpart {economies.ui_str}',
+            counterpart_country_list)
     with col3:
         min_year, max_year = get_years(country, counterpart_country)
         year = st.slider('Year', min_value=min_year, max_value=max_year)

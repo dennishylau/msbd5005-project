@@ -12,4 +12,7 @@ dependencies:
   - lxml
   - xlrd
   - openpyxl
+  - pip
+  - pip:
+    - streamlit-option-menu==0.3.2
 prefix: /opt/homebrew/Caskroom/miniforge/base/envs/msbd5005

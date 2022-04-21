@@ -13,5 +13,5 @@ IMF_ECON_GROUPS = [
     'Sub-Saharan Africa', 'Western Hemisphere not specified',
     'Western Hemisphere', 'World']
 
-TRADE_BAL_MAP_LINE_MAX_WIDTH = 5
+TRADE_BAL_MAP_LINE_MAX_WIDTH = 10
 TRADE_BAL_MAP_LINE_MIN_WIDTH = 1

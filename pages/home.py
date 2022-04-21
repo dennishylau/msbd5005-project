@@ -46,7 +46,7 @@ def render_home():
         country_filter, year_filter, trade_type_filter, top_n_filter, bottom_n_filter = st.columns([2, 6, 1, 2, 2])
 
         if 'default_country' not in st.session_state:
-            st.session_state['default_country'] = 'United States'
+            st.session_state['default_country'] = 'China, P.R.: Mainland'
 
         st.session_state['chosen_country'] = st.session_state['default_country']
 
@@ -80,7 +80,6 @@ def render_home():
             # update session_state with the country name chosen by user on the map
             chosen_points = plotly_events(trade_balance_map)
             if chosen_points:
-                print(chosen_points)
                 main_country = data['Country Name'].unique().tolist()
                 counterpart_countries = data['Counterpart Country Name'].tolist()
                 chosen_index = chosen_points[0]['pointIndex']

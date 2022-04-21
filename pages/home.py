@@ -1,103 +1,61 @@
 # %%
 import streamlit as st
 import numpy as np
-import re
 import altair as alt
 import plotly.express as px
-from cache import dfc_imf_dot
-from constants import IMF_ECON_GROUPS
-from enum import Enum
-from typing import List
+from cache import dfc_imf_dot, dfc_imf_map
+from figure.map import plot_trade_balance_map, update_data
+from streamlit_plotly_events import plotly_events
+from streamlit.scriptrunner.script_request_queue import RerunData
+from streamlit.scriptrunner.script_runner import RerunException
 
 
-class Economies(Enum):
-    COUNTRY_ECONOMIC_GROUP = 'Show Countries and Economic Groups'
-    COUNTRY = 'Only Show Countries'
-    ECONOMIC_GROUP = 'Only Show Economic Groups'
-
-    @property
-    def ui_str(self) -> str:
-        mapping = {
-            'Only Show Countries': 'Country',
-            'Only Show Economic Groups': 'Economic Group',
-            'Show Countries and Economic Groups': 'Country / Economic Group',
-        }
-        return mapping[self.value]
+def is_year(col: str) -> bool:
+    """check if given string can be cast to int"""
+    try:
+        return bool(int(col))
+    except ValueError:
+        return False
 
 
-def get_countries(economies: Economies) -> list[str]:
-    'Show list of countries / economies by `Economies`'
-    df = dfc_imf_dot['Country Name'].unique()
-    sorted_list = np.sort(df).tolist()
-    if economies is Economies.COUNTRY:
-        return [x for x in sorted_list if x not in IMF_ECON_GROUPS]
-    elif economies is Economies.ECONOMIC_GROUP:
-        return [x for x in sorted_list if x in IMF_ECON_GROUPS]
-    else:
-        return sorted_list
+YEAR_COLUMNS = [col for col in dfc_imf_dot.columns if is_year(col)]
+NON_YEAR_COLUMNS = list(set(dfc_imf_dot.columns) - set(YEAR_COLUMNS))
 
 
-def get_counterpart_countries(economies: Economies, country: str) -> list[str]:
-    'Get counterpart country list based on country'
-    df = (dfc_imf_dot
-          .query(f'`Country Name` == "{country}"')['Counterpart Country Name']
-          .unique())
-    sorted_list = np.sort(df).tolist()
-    if economies is Economies.COUNTRY:
-        sorted_list = [x for x in sorted_list if x not in IMF_ECON_GROUPS]
-    if economies is Economies.ECONOMIC_GROUP:
-        sorted_list = [x for x in sorted_list if x in IMF_ECON_GROUPS]
-    return ['All'] + list(sorted_list)
+def get_countries() -> list[str]:
+    """show list of available countries to be selected by user"""
+    return np.sort(dfc_imf_map['Country Name'].unique()).tolist()
 
 
 def get_top_n_counterpart_countries(
-    economies: Economies,
-    country: str,
-    top_n: int = 10,
-    year: int = 2021,
-    trade_type: str = 'Export',
+        country: str,
+        top_n: int = 10,
+        year: int = 2021,
+        trade_type: str = 'Export',
 ) -> list[str]:
     'Get the top n counterpart countries, ranked by trade volume'
-    df = dfc_imf_dot[
-        (dfc_imf_dot['Country Name'] == country)
-        & (dfc_imf_dot['Indicator Name'] == trade_type)
-    ]
-    trade_volume = (
-        df
-        .groupby(['Counterpart Country Name'])[str(year)]
-        .sum()
-        .sort_values(ascending=False)
-        .reset_index()
-    )
+    df = dfc_imf_dot[(dfc_imf_dot['Country Name'] == country)
+                     & (dfc_imf_dot['Indicator Name'] == trade_type)]
+    trade_volume = (df
+                    .groupby(['Counterpart Country Name'])[str(year)]
+                    .sum()
+                    .sort_values(ascending=False)
+                    .reset_index())
     top_n_counters = trade_volume['Counterpart Country Name'].tolist()
-
-    if economies is Economies.COUNTRY:
-        top_n_counters = [
-            x for x in top_n_counters if x not in IMF_ECON_GROUPS]
-    if economies is Economies.ECONOMIC_GROUP:
-        top_n_counters = [x for x in top_n_counters if x in IMF_ECON_GROUPS]
-
     top_n_counters = top_n_counters[:top_n]
 
     return top_n_counters
 
 
 @st.experimental_memo
-def get_years(country, counterpart_country):
-    'Get non nan years'
-    years = [x for x in dfc_imf_dot.columns if bool(re.match(r'^\d{4}$', x))]
-    if counterpart_country == 'All':
-        return int(min(years)), int(max(years))
-    non_nan_years = (
-        dfc_imf_dot
-        .query(f'`Country Name` == "{country}"')
-        .query(f'`Counterpart Country Name` == "{counterpart_country}"')
-        .loc[:, years]
-        .dropna(axis=1, how='all')
-        .columns
-    )
-    min_year = int(non_nan_years.min())
-    max_year = int(non_nan_years.max())
+def get_years(chosen_country):
+    """return the first and the last year that has data for a chosen country"""
+    valid_years = (dfc_imf_dot[dfc_imf_dot['Country Name'] == chosen_country]
+                   .loc[:, YEAR_COLUMNS]
+                   .dropna(axis=1, how='all')
+                   .columns)
+    min_year = int(valid_years.min())
+    max_year = int(valid_years.max())
     return min_year, max_year
 
 
@@ -111,60 +69,47 @@ def columns_is_in_range(column: str, min_year: int, max_year: int) -> bool:
         return False
 
 
-def render_import_export_time_series(economies, country, selected_years, trade_type):
+def render_import_export_time_series(country, selected_years, trade_type):
     '''
     Plot import export time series using altair
     '''
     min_selected_year, max_selected_year = selected_years
-    top_n_counters = get_top_n_counterpart_countries(
-        economies, country, 5, max_selected_year, trade_type
-    )
+    top_n_counters = get_top_n_counterpart_countries(country, 5, max_selected_year, trade_type)
 
-    df = dfc_imf_dot[
-        (dfc_imf_dot['Country Name'] == country)
-        & (dfc_imf_dot['Counterpart Country Name'].isin(top_n_counters))
-    ]
-    num_columns = [c for c in df.columns if columns_is_in_range(c)]
+    df = dfc_imf_dot[(dfc_imf_dot['Country Name'] == country)
+                     & (dfc_imf_dot['Counterpart Country Name'].isin(top_n_counters))]
+    num_columns = [c for c in df.columns if columns_is_in_range(c, min_selected_year, max_selected_year)]
 
     df = df[(df['Indicator Name'] == trade_type)]
     df = df[num_columns + ['Counterpart Country Name']].melt(
-        id_vars=['Counterpart Country Name'], var_name='Year', value_name='Volume'
-    )
+        id_vars=['Counterpart Country Name'], var_name='Year', value_name='Volume')
 
     line_chart = (
         alt.Chart(df, title='Trade volumns over time')
-        .mark_line()
-        .encode(
+            .mark_line()
+            .encode(
             x='Year',
             y='Volume',
             color='Counterpart Country Name',
             strokeDash='Counterpart Country Name',
-        )
-        .interactive()
-    )
+        ).interactive())
     st.altair_chart(line_chart, use_container_width=True)
 
 
 def render_trade_partner_pie_chart(
-    economies: Economies,
-    country: str,
-    selected_year: int,
-    trade_type: str,
-    top_n: int = 10,
+        country: str,
+        selected_year: int,
+        trade_type: str,
+        top_n: int = 10,
 ):
     selected_year = str(selected_year)
     other_countries = dfc_imf_dot['Counterpart Country Name'].tolist()
-    if economies is Economies.COUNTRY:
-        other_countries = [
-            x for x in other_countries if x not in IMF_ECON_GROUPS]
-    if economies is Economies.ECONOMIC_GROUP:
-        other_countries = [x for x in other_countries if x in IMF_ECON_GROUPS]
 
     df = dfc_imf_dot[
         (dfc_imf_dot['Country Name'] == country)
         & (dfc_imf_dot['Indicator Name'] == trade_type)
         & (dfc_imf_dot['Counterpart Country Name'].isin(other_countries))
-    ][['Counterpart Country Name', selected_year]]
+        ][['Counterpart Country Name', selected_year]]
 
     trade_percentage = df[selected_year].fillna(0)
     df[selected_year] = trade_percentage / trade_percentage.sum()
@@ -182,46 +127,62 @@ def render_trade_partner_pie_chart(
 
 
 def render_home():
-    # %%
-    # columns
-    non_year_cols = ['Country Name',
-                     'Counterpart Country Name', 'Indicator Name']
-    # filter UI
-    col0, col1, col2, col3 = st.columns([1, 1, 1, 3])
-    with col0:
-        economies_opt_str = st.selectbox(
-            'Economies', [x.value for x in Economies], index=1
-        )
-        economies = Economies(economies_opt_str)
-    with col1:
-        country_list = get_countries(economies)
-        country = st.selectbox(economies.ui_str, country_list)
-    with col2:
-        counterpart_country_list = get_counterpart_countries(
-            economies, country)
-        counterpart_country = st.selectbox(
-            f'Counterpart {economies.ui_str}', counterpart_country_list
-        )
-    with col3:
-        min_year, max_year = get_years(country, counterpart_country)
-        min_selected_year, max_selected_year = st.slider(
-            'Year',
-            min_value=min_year,
-            max_value=max_year,
-            value=(
-                int(min_year + (max_year - min_year) * 0.25),
-                int(min_year + (max_year - min_year) * 0.75),
-            ),
-        )
+    """render the page named 'home'"""
 
-    # render import/export time series
-    trade_type = st.selectbox('Trade type', ['Export', 'Import'])
-    render_import_export_time_series(
-        economies, country, (min_selected_year, max_selected_year), trade_type
-    )
-    render_trade_partner_pie_chart(
-        economies,
-        country,
-        max_selected_year,
-        trade_type,
-    )
+    with st.container():
+        country_filter, year_filter, trade_type_filter, top_n_filter, bottom_n_filter = st.columns([2, 8, 1, 2, 2])
+
+        if 'default_country' not in st.session_state:
+            st.session_state['default_country'] = 'United States'
+
+        st.session_state['chosen_country'] = st.session_state['default_country']
+
+        with country_filter:
+            available_countries = get_countries()
+            chosen_country = st.selectbox('Country', available_countries, key='chosen_country')
+
+        with trade_type_filter:
+            chosen_trade_type = st.selectbox('Trade type', ['Export', 'Import'])
+
+        with year_filter:
+            min_year, max_year = get_years(chosen_country)
+        chosen_start_year, chosen_end_year = st.slider('Year', min_year, max_year, (min_year, max_year))
+
+        with top_n_filter:
+            chosen_top_n = st.selectbox('No. of Best Profit Counterparts to Display', range(5, 11), 0)
+
+        with bottom_n_filter:
+            chosen_bottom_n = st.selectbox('No. of Worst Loss Counterparts to Display', range(5, 11), 0)
+
+    with st.container():
+        trade_balance_map, time_series_plot = st.columns([1, 1])
+
+        with trade_balance_map:
+            data = update_data(dfc_imf_map, chosen_country, chosen_start_year, chosen_end_year, chosen_top_n,
+                               chosen_bottom_n)
+
+            fig = plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, chosen_start_year,
+                                         chosen_end_year)
+
+            # update session_state with the country name chosen by user on the map
+            chosen_points = plotly_events(fig, override_height=900, override_width="200%")
+            if chosen_points:
+                print(chosen_points)
+                main_country = data['Country Name'].unique().tolist()
+                counterpart_countries = data['Counterpart Country Name'].tolist()
+                chosen_index = chosen_points[0]['pointIndex']
+                if chosen_points[0]['curveNumber'] == 1:
+                    st.session_state['default_country'] = counterpart_countries[chosen_index]
+                    raise RerunException(RerunData())
+                if chosen_points[0]['curveNumber'] == 0:
+                    st.session_state['default_country'] = main_country[chosen_index]
+                    raise RerunException(RerunData())
+
+        with time_series_plot:
+            render_import_export_time_series(chosen_country, (chosen_start_year, chosen_end_year), chosen_trade_type)
+
+    with st.container():
+        pie_chart_plot, _ = st.columns([1, 1])
+
+        with pie_chart_plot:
+            render_trade_partner_pie_chart(chosen_country, chosen_end_year, chosen_trade_type, )

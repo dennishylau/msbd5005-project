@@ -21,11 +21,11 @@ def get_valid_countries(df) -> list[str]:
     return valid_countries
 
 
-VALID_COUNTRIES = get_valid_countries(df_imf_map)
+valid_countries = get_valid_countries(df_imf_map)
 
 # cache
 dfc_wb_code = __cache(df_wb_code)
 dfc_wb_trade = __cache(df_wb_trade)
-dfc_imf_dot = __cache(df_imf_dot[(df_imf_dot['Country Name'].isin(VALID_COUNTRIES))
-                                 & (df_imf_dot['Counterpart Country Name'].isin(VALID_COUNTRIES))])
+dfc_imf_dot = __cache(df_imf_dot[(df_imf_dot['Country Name'].isin(valid_countries))
+                                 & (df_imf_dot['Counterpart Country Name'].isin(valid_countries))])
 dfc_imf_map = __cache(df_imf_map)

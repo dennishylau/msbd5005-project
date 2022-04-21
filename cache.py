@@ -1,5 +1,5 @@
 import streamlit as st
-from preprocess import df_wb_code, df_wb_trade, df_imf_dot, df_imf_map
+from preprocess import df_wb_code, df_wb_trade, df_imf_dot, df_imf_map, df_china_data
 
 
 @st.experimental_memo
@@ -29,3 +29,4 @@ dfc_wb_trade = __cache(df_wb_trade)
 dfc_imf_dot = __cache(df_imf_dot[(df_imf_dot['Country Name'].isin(valid_countries))
                                  & (df_imf_dot['Counterpart Country Name'].isin(valid_countries))])
 dfc_imf_map = __cache(df_imf_map)
+dfc_china_data = __cache(df_china_data)

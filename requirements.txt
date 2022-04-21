@@ -4,3 +4,4 @@ pandas==1.4.2
 plotly==5.7.0
 streamlit==1.8.1
 streamlit_option_menu==0.3.2
+streamlit-plotly-events==0.0.6

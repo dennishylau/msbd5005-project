@@ -123,10 +123,6 @@ def plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, 
 
     fig.update_geos(
         landcolor=land_color,
-        bgcolor='rgba(0,0,0,0)',
-        projection_type="orthographic",
-        center=dict(lon=chosen_country_lon, lat=chosen_country_lat),
-        projection_rotation=dict(lon=chosen_country_lon, lat=chosen_country_lat, roll=0)
-    )
+        bgcolor='rgba(0,0,0,0)')
 
     return fig

@@ -12,3 +12,6 @@ IMF_ECON_GROUPS = [
     'South African Common Customs Area (SACCA)', 'Special Categories',
     'Sub-Saharan Africa', 'Western Hemisphere not specified',
     'Western Hemisphere', 'World']
+
+TRADE_BAL_MAP_LINE_MAX_WIDTH = 5
+TRADE_BAL_MAP_LINE_MIN_WIDTH = 1

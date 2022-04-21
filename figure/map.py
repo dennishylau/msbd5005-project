@@ -1,13 +1,11 @@
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-
-LINE_MAX_WIDTH = 10
-LINE_MIN_WIDTH = 1
+from constants import TRADE_BAL_MAP_LINE_MAX_WIDTH, TRADE_BAL_MAP_LINE_MIN_WIDTH
 
 
-def get_line_width(series: pd.Series, line_max_width: int = LINE_MAX_WIDTH,
-                   line_min_width: int = LINE_MIN_WIDTH) -> np.array:
+def get_line_width(series: pd.Series, line_max_width: int = TRADE_BAL_MAP_LINE_MAX_WIDTH,
+                   line_min_width: int = TRADE_BAL_MAP_LINE_MIN_WIDTH) -> np.array:
     """
     computes line widths the be drawn on plotly map.
 
@@ -112,12 +110,10 @@ def plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, 
         margin=dict(
             l=0,
             r=0,
-            b=0,
+            b=50,
             t=50,
             pad=0,
             autoexpand=False),
-        width=2000,
-        # height=600,
         hoverlabel_align='right',
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',

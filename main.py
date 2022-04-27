@@ -13,16 +13,16 @@ with menu_col:
     ''
     ''
     menu = option_menu(
-        None, ['Home', 'World Bank', 'References'],
+        None, ['Home', 'Dashboard', 'References'],
         icons=['house', 'globe', 'list-ul'],
         default_index=0, orientation="horizontal")
 '---'
 
-if menu == 'Home':
+if menu == 'Dashboard':
     # call import here so cache only
     # init after calling set_page_config()
-    from pages.home import render_home
-    render_home()
+    from pages.dashboard import render_dashboard
+    render_dashboard()
 elif menu == 'World Bank':
     from pages.world_bank import render_wb
     render_wb()

@@ -3,7 +3,7 @@ import streamlit as st
 import numpy as np
 from cache import dfc_imf_dot, dfc_imf_map
 from figure.map import plot_trade_balance_map, update_data
-from figure.pie_chart import plot_trade_partner_pie_chart
+from figure.pie_chart import plot_trade_partner_pie_chart, prepare_data, prepare_color_mapping
 from figure.time_series import plot_import_export_time_series
 from streamlit_plotly_events import plotly_events
 from streamlit.scriptrunner.script_request_queue import RerunData
@@ -39,11 +39,11 @@ def get_years(chosen_country):
     return min_year, max_year
 
 
-def render_home():
+def render_dashboard():
     """Renders the page named 'home'"""
 
     with st.container():
-        country_filter, year_filter, trade_type_filter, top_n_filter, bottom_n_filter = st.columns([2, 6, 1, 2, 2])
+        country_filter, year_filter, top_n_filter, bottom_n_filter = st.columns([2, 6, 2, 2])
 
         if 'default_country' not in st.session_state:
             st.session_state['default_country'] = 'China, P.R.: Mainland'
@@ -53,9 +53,6 @@ def render_home():
         with country_filter:
             available_countries = get_countries()
             chosen_country = st.selectbox('Country', available_countries, key='chosen_country')
-
-        with trade_type_filter:
-            chosen_trade_type = st.selectbox('Trade type', ['Export', 'Import'])
 
         with year_filter:
             min_year, max_year = get_years(chosen_country)
@@ -68,37 +65,39 @@ def render_home():
             chosen_bottom_n = st.selectbox('No. of Worst Loss Counterparts to Display', range(5, 11), 0)
 
     with st.container():
-        trade_balance_map_col, time_series_plot_col = st.columns([1, 1])
 
-        with trade_balance_map_col:
-            data = update_data(dfc_imf_map, chosen_country, chosen_start_year, chosen_end_year, chosen_top_n,
-                               chosen_bottom_n)
+        data = update_data(dfc_imf_map, chosen_country, chosen_start_year, chosen_end_year, chosen_top_n,
+                           chosen_bottom_n)
 
-            trade_balance_map = plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n,
-                                                       chosen_start_year, chosen_end_year)
+        trade_balance_map = plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n,
+                                                   chosen_start_year, chosen_end_year)
 
-            # update session_state with the country name chosen by user on the map
-            chosen_points = plotly_events(trade_balance_map)
-            if chosen_points:
-                main_country = data['Country Name'].unique().tolist()
-                counterpart_countries = data['Counterpart Country Name'].tolist()
-                chosen_index = chosen_points[0]['pointIndex']
-                if chosen_points[0]['curveNumber'] == 1:
-                    st.session_state['default_country'] = counterpart_countries[chosen_index]
-                    raise RerunException(RerunData())
-                if chosen_points[0]['curveNumber'] == 0:
-                    st.session_state['default_country'] = main_country[chosen_index]
-                    raise RerunException(RerunData())
-
-        with time_series_plot_col:
-            time_series_plot = plot_import_export_time_series(dfc_imf_dot, chosen_country,
-                                                              (chosen_start_year, chosen_end_year), chosen_trade_type)
-            st.altair_chart(time_series_plot, use_container_width=True)
+        # update session_state with the country name chosen by user on the map
+        chosen_points = plotly_events(trade_balance_map)
+        if chosen_points:
+            main_country = data['Country Name'].unique().tolist()
+            counterpart_countries = data['Counterpart Country Name'].tolist()
+            chosen_index = chosen_points[0]['pointIndex']
+            if chosen_points[0]['curveNumber'] == 1:
+                st.session_state['default_country'] = counterpart_countries[chosen_index]
+                raise RerunException(RerunData())
+            if chosen_points[0]['curveNumber'] == 0:
+                st.session_state['default_country'] = main_country[chosen_index]
+                raise RerunException(RerunData())
 
     with st.container():
-        pie_chart_plot_col, _ = st.columns([1, 1])
+        pie_chart_import_plot_col, pie_chart_export_plot_col = st.columns([1, 1])
 
-        with pie_chart_plot_col:
-            pie_chart_plot = plot_trade_partner_pie_chart(dfc_imf_dot, chosen_country, chosen_end_year,
-                                                          chosen_trade_type)
+        pie_chart_df = prepare_data(dfc_imf_dot, chosen_country, chosen_end_year)
+        color_mapping = prepare_color_mapping(pie_chart_df)
+
+        with pie_chart_import_plot_col:
+            pie_chart_plot = plot_trade_partner_pie_chart(pie_chart_df, chosen_country, chosen_end_year, 'Import',
+                                                          color_mapping)
+            print(pie_chart_plot['layout']['template'])
+            st.plotly_chart(pie_chart_plot, use_container_width=True)
+
+        with pie_chart_export_plot_col:
+            pie_chart_plot = plot_trade_partner_pie_chart(pie_chart_df, chosen_country, chosen_end_year, 'Export',
+                                                          color_mapping)
             st.plotly_chart(pie_chart_plot, use_container_width=True)

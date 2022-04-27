@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.express as px
 
 
-def plot_trade_partner_pie_chart(dfc_imf_dot: pd.DataFrame, country: str, selected_year: int, trade_type: str, top_n: int = 10):
+def prepare_data_by_trade_type(dfc_imf_dot, country, selected_year, trade_type, top_n=10):
     selected_year = str(selected_year)
     other_countries = dfc_imf_dot['Counterpart Country Name'].tolist()
 
@@ -19,6 +19,29 @@ def plot_trade_partner_pie_chart(dfc_imf_dot: pd.DataFrame, country: str, select
     others = df.iloc[top_n:]
     df = df.iloc[:top_n]
     df.loc[len(df)] = ['Others', others[selected_year].sum()]
+    return df
 
-    pie_chart = px.pie(df, values=selected_year, names='Counterpart Country Name')
+
+def prepare_data(dfc_imf_dot, country, selected_year, top_n=10):
+    import_df = prepare_data_by_trade_type(dfc_imf_dot, country, selected_year, 'Import', top_n)
+    export_df = prepare_data_by_trade_type(dfc_imf_dot, country, selected_year, 'Export', top_n)
+
+    import_df['Indicator Name'] = 'Import'
+    export_df['Indicator Name'] = 'Export'
+
+    return pd.concat([import_df, export_df], ignore_index=True)
+
+
+def prepare_color_mapping(df):
+    """Align both pie charts color."""
+    unique_countries = df['Counterpart Country Name'].unique()
+    colors = px.colors.qualitative.Alphabet
+    return {country: color for country, color in zip(unique_countries, colors)}
+
+
+def plot_trade_partner_pie_chart(df: pd.DataFrame, country: str, selected_year: int, trade_type: str,
+                                 color_mapping: dict, top_n: int = 10):
+    df = df[df['Indicator Name'] == trade_type]
+    pie_chart = px.pie(df, values=str(selected_year), names='Counterpart Country Name', title=f'{trade_type}s of {country}',
+                       color='Counterpart Country Name', color_discrete_map=color_mapping)
     return pie_chart

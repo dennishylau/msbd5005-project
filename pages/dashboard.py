@@ -50,13 +50,16 @@ def render_dashboard():
 
         st.session_state['chosen_country'] = st.session_state['default_country']
 
+        def update_country():
+            st.session_state['default_country'] = st.session_state['chosen_country']
+
         with country_filter:
             available_countries = get_countries()
-            chosen_country = st.selectbox('Country', available_countries, key='chosen_country')
+            chosen_country = st.selectbox('Country', available_countries, key='chosen_country', on_change=update_country)
 
         with year_filter:
             min_year, max_year = get_years(chosen_country)
-            chosen_start_year, chosen_end_year = st.slider('Year', min_year, max_year, (min_year, max_year))
+            chosen_year = st.slider('Year', min_year, max_year, max_year)
 
         with top_n_filter:
             chosen_top_n = st.selectbox('No. of Best Profit Counterparts to Display', range(5, 11), 0)
@@ -66,11 +69,9 @@ def render_dashboard():
 
     with st.container():
 
-        data = update_data(dfc_imf_map, chosen_country, chosen_start_year, chosen_end_year, chosen_top_n,
-                           chosen_bottom_n)
+        data = update_data(dfc_imf_map, chosen_country, chosen_year, chosen_top_n, chosen_bottom_n)
 
-        trade_balance_map = plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n,
-                                                   chosen_start_year, chosen_end_year)
+        trade_balance_map = plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, chosen_year)
 
         # update session_state with the country name chosen by user on the map
         chosen_points = plotly_events(trade_balance_map)
@@ -88,16 +89,15 @@ def render_dashboard():
     with st.container():
         pie_chart_import_plot_col, pie_chart_export_plot_col = st.columns([1, 1])
 
-        pie_chart_df = prepare_data(dfc_imf_dot, chosen_country, chosen_end_year)
+        pie_chart_df = prepare_data(dfc_imf_dot, chosen_country, chosen_year)
         color_mapping = prepare_color_mapping(pie_chart_df)
 
         with pie_chart_import_plot_col:
-            pie_chart_plot = plot_trade_partner_pie_chart(pie_chart_df, chosen_country, chosen_end_year, 'Import',
+            pie_chart_plot = plot_trade_partner_pie_chart(pie_chart_df, chosen_country, chosen_year, 'Import',
                                                           color_mapping)
-            print(pie_chart_plot['layout']['template'])
             st.plotly_chart(pie_chart_plot, use_container_width=True)
 
         with pie_chart_export_plot_col:
-            pie_chart_plot = plot_trade_partner_pie_chart(pie_chart_df, chosen_country, chosen_end_year, 'Export',
+            pie_chart_plot = plot_trade_partner_pie_chart(pie_chart_df, chosen_country, chosen_year, 'Export',
                                                           color_mapping)
             st.plotly_chart(pie_chart_plot, use_container_width=True)

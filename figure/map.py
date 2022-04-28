@@ -4,8 +4,15 @@ import plotly.graph_objects as go
 from constants import TRADE_BAL_MAP_LINE_MAX_WIDTH, TRADE_BAL_MAP_LINE_MIN_WIDTH
 
 
-def get_line_width(series: pd.Series, line_max_width: int = TRADE_BAL_MAP_LINE_MAX_WIDTH,
-                   line_min_width: int = TRADE_BAL_MAP_LINE_MIN_WIDTH) -> np.array:
+def normalize(series: pd.Series, line_max_width: int, line_min_width: int) -> np.array:
+    normalized_values = (series / series.max()).to_numpy()
+    return ((normalized_values - np.min(normalized_values))
+            / (np.max(normalized_values) - np.min(normalized_values))
+            * (line_max_width - line_min_width) + line_min_width)
+
+
+def get_line_width_mapping(series: pd.Series, line_max_width: int = TRADE_BAL_MAP_LINE_MAX_WIDTH,
+                           line_min_width: int = TRADE_BAL_MAP_LINE_MIN_WIDTH) -> dict:
     """
     computes line widths the be drawn on plotly map.
 
@@ -16,51 +23,52 @@ def get_line_width(series: pd.Series, line_max_width: int = TRADE_BAL_MAP_LINE_M
     :param line_min_width: int. Defaults to 1
     :return line_width_array: np.array. The numpy array of float values where each value is the line width.
     """
-    normalized_values = (series / series.max()).to_numpy()
-    line_width_array = ((normalized_values - np.min(normalized_values))
-                        / (np.max(normalized_values) - np.min(normalized_values))
-                        * (line_max_width - line_min_width) + line_min_width)
-    return line_width_array
+
+    pos_series = series[series >= 0].sort_values(ascending=False)
+    neg_series = series[series < 0].sort_values(ascending=True)
+
+    pos_line_width_array = normalize(pos_series, line_max_width, line_min_width)
+    neg_line_width_array = normalize(neg_series, line_max_width, line_min_width)
+
+    return {index: width for index, width in zip(list(pos_series.index) + list(neg_series.index),
+                                                 np.concatenate((pos_line_width_array, neg_line_width_array)))}
 
 
-def update_data(dfc_imf_map: pd.DataFrame, chosen_country: str, chosen_start_year: int, chosen_end_year: int,
-                chosen_top_n: int, chosen_bottom_n: int) -> pd.DataFrame:
+def update_data(dfc_imf_map: pd.DataFrame, chosen_country: str, chosen_year: int, chosen_top_n: int,
+                chosen_bottom_n: int) -> pd.DataFrame:
     """
     given preprocessed data for plotting the trade balance map, update the data base on user filters
 
     :param dfc_imf_map: pd.DataFrame. Preprocessed data that is already cached.
     :param chosen_country: str. User's chosen country to display.
-    :param chosen_start_year: int. User's chosen starting year.
-    :param chosen_end_year: int. User's chosen ending year.
+    :param chosen_year: int. User's chosen year.
     :param chosen_top_n: int. User's chosen top N countries that the chosen country is profiting from.
     :param chosen_bottom_n: int. User's chosen bottom N countries that the chosen country is losing to.
     :return data: pd.DataFrame. Filtered dataframe ready to be plotted using plotly map.
     """
     country_data = dfc_imf_map[dfc_imf_map['Country Name'] == chosen_country].copy()
 
-    year_columns = [str(year) for year in range(chosen_start_year, chosen_end_year + 1)]
-    country_data['total'] = country_data[year_columns].sum(axis=1)
+    chosen_year = str(chosen_year)
+
+    country_data.dropna(subset=[chosen_year], inplace=True)
 
     # prepare a column named 'width' that stores the width of lines to be plotted on the map
-    pos_balance = country_data[country_data['total'] >= 0].sort_values(by='total', ascending=False)
-    pos_balance['width'] = get_line_width(pos_balance['total'])
+    country_data['width'] = country_data.index.map(get_line_width_mapping(country_data[chosen_year]))
 
-    neg_balance = country_data[country_data['total'] < 0].sort_values(by='total', ascending=True)
-    neg_balance['width'] = get_line_width(neg_balance['total'])
+    top_n = country_data.sort_values(by=chosen_year, ascending=False)
+    bottom_n = country_data.sort_values(by=chosen_year, ascending=True)
 
-    data = pd.concat([pos_balance.head(chosen_top_n), neg_balance.head(chosen_bottom_n)], ignore_index=True)
+    data = pd.concat([top_n.head(chosen_top_n), bottom_n.head(chosen_bottom_n)], ignore_index=True)
     return data
 
 
-def plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, chosen_start_year, chosen_end_year,
+def plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, chosen_year,
                            chosen_country_color='rgb(255, 232, 84)', counterpart_country_color='rgb(230, 230, 230)',
                            profit_color='rgb(45,237,28)', loss_color='rgb(254,2,1)', land_color='rgb(51, 51, 51)'):
-
     fig = go.FigureWidget()
 
+    chosen_year = str(chosen_year)
     chosen_country_code = data['Country Code ISO3'].unique().tolist()
-    chosen_country_lat = data['latitude'].iloc[0]
-    chosen_country_lon = data['longitude'].iloc[0]
 
     # add chosen country
     fig.add_traces(go.Choropleth(
@@ -99,10 +107,10 @@ def plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, 
             mode='lines',
             line=dict(
                 width=row['width'],
-                color=profit_color if row['total'] >= 0 else loss_color
+                color=profit_color if row[chosen_year] >= 0 else loss_color
             ),
             hovertemplate=f'Counterpart Country: {row["Counterpart Country Name"]}<br>'
-                          + row['Indicator Name'] + f': {row["total"]}<extra></extra>'))
+                          + row['Indicator Name'] + f': {round(row[chosen_year]/1_000_000, 2)} million US $<extra></extra>'))
 
     fig.update_traces(showlegend=False)
     fig.update_layout(
@@ -119,7 +127,7 @@ def plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, 
         plot_bgcolor='rgba(0,0,0,0)',
         template='plotly_dark',
         title_text=f"Top {chosen_top_n} & Bottom {chosen_bottom_n} Trade Balances "
-                   + f"of {chosen_country} from {chosen_start_year} to {chosen_end_year}")
+                   + f"of {chosen_country} in {chosen_year}")
 
     fig.update_geos(
         landcolor=land_color,

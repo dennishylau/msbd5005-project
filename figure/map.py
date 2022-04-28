@@ -110,7 +110,7 @@ def plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, 
         margin=dict(
             l=0,
             r=0,
-            b=50,
+            b=0,
             t=50,
             pad=0,
             autoexpand=False),

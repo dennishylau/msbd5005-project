@@ -1,5 +1,13 @@
 import streamlit as st
-from preprocess import df_wb_code, df_wb_trade, df_imf_dot, df_imf_map, df_china_data, df_china_pyramid
+from preprocess import (
+    df_wb_code,
+    df_wb_trade,
+    df_imf_dot,
+    df_imf_map,
+    df_china_data,
+    df_china_pyramid,
+    df_china_pop
+)
 
 
 @st.experimental_memo
@@ -31,3 +39,4 @@ dfc_imf_dot = __cache(df_imf_dot[(df_imf_dot['Country Name'].isin(valid_countrie
 dfc_imf_map = __cache(df_imf_map)
 dfc_china_data = __cache(df_china_data)
 dfc_china_pyramid = __cache(df_china_pyramid)
+dfc_china_pop = __cache(df_china_pop)

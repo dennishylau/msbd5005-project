@@ -42,6 +42,7 @@ def prepare_color_mapping(df):
 def plot_trade_partner_pie_chart(df: pd.DataFrame, country: str, selected_year: int, trade_type: str,
                                  color_mapping: dict, top_n: int = 10):
     df = df[df['Indicator Name'] == trade_type]
-    pie_chart = px.pie(df, values=str(selected_year), names='Counterpart Country Name', title=f'{trade_type}s of {country}',
-                       color='Counterpart Country Name', color_discrete_map=color_mapping)
+    pie_chart = px.pie(df, values=str(selected_year), names='Counterpart Country Name',
+                       title=f'{trade_type}s of {country} in {selected_year}', color='Counterpart Country Name',
+                       color_discrete_map=color_mapping)
     return pie_chart

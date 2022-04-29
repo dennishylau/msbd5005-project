@@ -1,5 +1,6 @@
 # %%
 import streamlit as st
+import streamlit.components.v1 as components
 import numpy as np
 from cache import dfc_imf_dot, dfc_worldbank_gdp, dfc_population_15_64_percent, dfc_wb_code
 from figure.map import plot_trade_balance_map, update_data
@@ -93,32 +94,44 @@ def render_dashboard():
 
     data = update_data(dfc_imf_dot, chosen_country, chosen_year, chosen_top_n, chosen_bottom_n)
 
-    trade_balance_map = plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, chosen_year)
+    if data.empty:
+        st.markdown("<h1 style='text-align: center; color: grey;'>No trade balance data "
+                    "available for the chosen country and year.</h1>", unsafe_allow_html=True)
+    else:
+        trade_balance_map = plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, chosen_year)
 
-    # update session_state with the country name chosen by user on the map
-    chosen_points = plotly_events(trade_balance_map)
-    if chosen_points:
-        main_country = data['Country Name'].unique().tolist()
-        counterpart_countries = data['Counterpart Country Name'].tolist()
-        chosen_index = chosen_points[0]['pointIndex']
-        if chosen_points[0]['curveNumber'] == 1:
-            st.session_state['default_country'] = counterpart_countries[chosen_index]
-            raise RerunException(RerunData())
-        if chosen_points[0]['curveNumber'] == 0:
-            st.session_state['default_country'] = main_country[chosen_index]
-            raise RerunException(RerunData())
+        # update session_state with the country name chosen by user on the map
+        chosen_points = plotly_events(trade_balance_map)
+        if chosen_points:
+            main_country = data['Country Name'].unique().tolist()
+            counterpart_countries = data['Counterpart Country Name'].tolist()
+            chosen_index = chosen_points[0]['pointIndex']
+            if chosen_points[0]['curveNumber'] == 1:
+                st.session_state['default_country'] = counterpart_countries[chosen_index]
+                raise RerunException(RerunData())
+            if chosen_points[0]['curveNumber'] == 0:
+                st.session_state['default_country'] = main_country[chosen_index]
+                raise RerunException(RerunData())
 
     pie_chart_import_plot_col, pie_chart_export_plot_col = st.columns([1, 1])
 
     pie_chart_df = prepare_data(dfc_imf_dot, chosen_country, chosen_year)
     color_mapping = prepare_color_mapping(pie_chart_df)
 
-    with pie_chart_import_plot_col:
-        pie_chart_plot = plot_trade_partner_pie_chart(pie_chart_df, chosen_country, chosen_year, 'Import',
-                                                      color_mapping)
-        st.plotly_chart(pie_chart_plot, use_container_width=True)
+    if pie_chart_df[pie_chart_df['Indicator Name'] == 'Import'][str(chosen_year)].dropna().shape[0] == 1:
+        st.markdown("<h3 style='text-align: center; color: grey;'>No Import data "
+                    "available for the chosen country and year.</h1>", unsafe_allow_html=True)
+    else:
+        with pie_chart_import_plot_col:
+            pie_chart_plot = plot_trade_partner_pie_chart(pie_chart_df, chosen_country, chosen_year, 'Import',
+                                                          color_mapping)
+            st.plotly_chart(pie_chart_plot, use_container_width=True)
 
-    with pie_chart_export_plot_col:
-        pie_chart_plot = plot_trade_partner_pie_chart(pie_chart_df, chosen_country, chosen_year, 'Export',
-                                                      color_mapping)
-        st.plotly_chart(pie_chart_plot, use_container_width=True)
+    if pie_chart_df[pie_chart_df['Indicator Name'] == 'Export'][str(chosen_year)].dropna().shape[0] == 1:
+        st.markdown("<h3 style='text-align: center; color: grey;'>No Export data "
+                    "available for the chosen country and year.</h1>", unsafe_allow_html=True)
+    else:
+        with pie_chart_export_plot_col:
+            pie_chart_plot = plot_trade_partner_pie_chart(pie_chart_df, chosen_country, chosen_year, 'Export',
+                                                          color_mapping)
+            st.plotly_chart(pie_chart_plot, use_container_width=True)

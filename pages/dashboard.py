@@ -1,10 +1,10 @@
 # %%
 import streamlit as st
 import numpy as np
-from cache import dfc_imf_dot, dfc_imf_map
+from cache import dfc_imf_dot, dfc_worldbank_gdp, dfc_population_15_64_percent, dfc_wb_code
 from figure.map import plot_trade_balance_map, update_data
+from figure.indicator import plot_indicator
 from figure.pie_chart import plot_trade_partner_pie_chart, prepare_data, prepare_color_mapping
-from figure.time_series import plot_import_export_time_series
 from streamlit_plotly_events import plotly_events
 from streamlit.scriptrunner.script_request_queue import RerunData
 from streamlit.scriptrunner.script_runner import RerunException
@@ -24,7 +24,7 @@ NON_YEAR_COLUMNS = list(set(dfc_imf_dot.columns) - set(YEAR_COLUMNS))
 
 def get_countries() -> list[str]:
     """Shows the list of available countries to be selected by user"""
-    return np.sort(dfc_imf_map['Country Name'].unique()).tolist()
+    return np.sort(dfc_imf_dot['Country Name'].unique()).tolist()
 
 
 @st.experimental_memo
@@ -46,7 +46,7 @@ def render_dashboard():
         country_filter, year_filter, top_n_filter, bottom_n_filter = st.columns([2, 6, 2, 2])
 
         if 'default_country' not in st.session_state:
-            st.session_state['default_country'] = 'China, P.R.: Mainland'
+            st.session_state['default_country'] = 'China'
 
         st.session_state['chosen_country'] = st.session_state['default_country']
 
@@ -55,7 +55,8 @@ def render_dashboard():
 
         with country_filter:
             available_countries = get_countries()
-            chosen_country = st.selectbox('Country', available_countries, key='chosen_country', on_change=update_country)
+            chosen_country = st.selectbox('Country', available_countries, key='chosen_country',
+                                          on_change=update_country)
 
         with year_filter:
             min_year, max_year = get_years(chosen_country)
@@ -68,8 +69,15 @@ def render_dashboard():
             chosen_bottom_n = st.selectbox('No. of Worst Loss Counterparts to Display', range(5, 11), 0)
 
     with st.container():
+        gdp_indicator, population_indicator, import_indicator, export_indicator, trade_bal_indicator = st.columns(
+            [1, 1, 1, 1, 1])
 
-        data = update_data(dfc_imf_map, chosen_country, chosen_year, chosen_top_n, chosen_bottom_n)
+        with gdp_indicator:
+            st.plotly_chart(plot_indicator(dfc_worldbank_gdp, chosen_year, chosen_country), use_container_width=True)
+
+    with st.container():
+
+        data = update_data(dfc_imf_dot, chosen_country, chosen_year, chosen_top_n, chosen_bottom_n)
 
         trade_balance_map = plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, chosen_year)
 

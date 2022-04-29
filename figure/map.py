@@ -34,19 +34,22 @@ def get_line_width_mapping(series: pd.Series, line_max_width: int = TRADE_BAL_MA
                                                  np.concatenate((pos_line_width_array, neg_line_width_array)))}
 
 
-def update_data(dfc_imf_map: pd.DataFrame, chosen_country: str, chosen_year: int, chosen_top_n: int,
-                chosen_bottom_n: int) -> pd.DataFrame:
+def update_data(df: pd.DataFrame, chosen_country: str, chosen_year: int, chosen_top_n: int,
+                chosen_bottom_n: int, trade_type: str = 'Trade Balance') -> pd.DataFrame:
     """
     given preprocessed data for plotting the trade balance map, update the data base on user filters
 
-    :param dfc_imf_map: pd.DataFrame. Preprocessed data that is already cached.
+    :param df: pd.DataFrame. Preprocessed data that is already cached.
     :param chosen_country: str. User's chosen country to display.
     :param chosen_year: int. User's chosen year.
     :param chosen_top_n: int. User's chosen top N countries that the chosen country is profiting from.
     :param chosen_bottom_n: int. User's chosen bottom N countries that the chosen country is losing to.
     :return data: pd.DataFrame. Filtered dataframe ready to be plotted using plotly map.
+    :param trade_type: str. Defaults to 'Trade Balance'. The type of data to display.
     """
-    country_data = dfc_imf_map[dfc_imf_map['Country Name'] == chosen_country].copy()
+
+    country_data = df[df['Country Name'] == chosen_country].copy()
+    country_data = country_data[country_data['Indicator Name'] == trade_type]
 
     chosen_year = str(chosen_year)
 
@@ -109,8 +112,8 @@ def plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, 
                 width=row['width'],
                 color=profit_color if row[chosen_year] >= 0 else loss_color
             ),
-            hovertemplate=f'Counterpart Country: {row["Counterpart Country Name"]}<br>'
-                          + row['Indicator Name'] + f': {round(row[chosen_year]/1_000_000, 2)} million US $<extra></extra>'))
+            hovertemplate=f'Counterpart Country: {row["Counterpart Country Name"]}<br>{row["Indicator Name"]}'
+                          + f': {round(row[chosen_year] / 1_000_000, 2)} million US $<extra></extra>'))
 
     fig.update_traces(showlegend=False)
     fig.update_layout(

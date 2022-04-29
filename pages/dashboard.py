@@ -73,8 +73,10 @@ def render_dashboard():
             [1, 1, 1, 1, 1])
 
         with gdp_indicator:
-            st.plotly_chart(plot_indicator(dfc_worldbank_gdp, chosen_year, chosen_country), use_container_width=True)
+            st.plotly_chart(plot_indicator(dfc_worldbank_gdp, chosen_year, chosen_country,
+                                           indicator_name='GDP per capita (current US$)'), use_container_width=True)
 
+        # Population ages 15-64 (% of total population)
     with st.container():
 
         data = update_data(dfc_imf_dot, chosen_country, chosen_year, chosen_top_n, chosen_bottom_n)

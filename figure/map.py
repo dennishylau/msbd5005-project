@@ -72,8 +72,6 @@ def plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, 
                            profit_color='rgb(45,237,28)', loss_color='rgb(254,2,1)', land_color='rgb(51, 51, 51)'):
     fig = go.FigureWidget()
 
-    print(data)
-
     chosen_year = str(chosen_year)
     chosen_country_code = data['Country Code ISO3'].unique().tolist()
 

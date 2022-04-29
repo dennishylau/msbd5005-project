@@ -117,11 +117,12 @@ def plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, 
     fig.update_traces(showlegend=False)
     fig.update_layout(
         autosize=True,
+        height=400,
         margin=dict(
             l=0,
             r=0,
             b=0,
-            t=50,
+            t=40,
             pad=0,
             autoexpand=False),
         hoverlabel_align='right',

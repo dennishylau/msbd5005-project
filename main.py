@@ -7,10 +7,9 @@ st.set_page_config(layout="wide")
 
 title_col, menu_col = st.columns([1, 1])
 with title_col:
-    '# MSBD5005 Project'
+    '## MSBD5005 Project'
 with menu_col:
     # workaround for vertical alignment
-    ''
     ''
     menu = option_menu(
         None, ['Home', 'Dashboard', 'References'],

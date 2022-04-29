@@ -5,6 +5,8 @@ from constants import TRADE_BAL_MAP_LINE_MAX_WIDTH, TRADE_BAL_MAP_LINE_MIN_WIDTH
 
 
 def normalize(series: pd.Series, line_max_width: int, line_min_width: int) -> np.array:
+    if series.empty:
+        return np.array([])
     normalized_values = (series / series.max()).to_numpy()
     return ((normalized_values - np.min(normalized_values))
             / (np.max(normalized_values) - np.min(normalized_values))
@@ -69,6 +71,8 @@ def plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, 
                            chosen_country_color='rgb(255, 232, 84)', counterpart_country_color='rgb(230, 230, 230)',
                            profit_color='rgb(45,237,28)', loss_color='rgb(254,2,1)', land_color='rgb(51, 51, 51)'):
     fig = go.FigureWidget()
+
+    print(data)
 
     chosen_year = str(chosen_year)
     chosen_country_code = data['Country Code ISO3'].unique().tolist()

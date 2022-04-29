@@ -107,8 +107,6 @@ def render_history():
         icons=['calendar', 'calendar', 'calendar', 'calendar', 'calendar'],
         default_index=MENU_NAMES.index(st.session_state['timeline_page']), orientation="horizontal")
 
-    st.write(st.session_state)
-
     if menu == MENU_NAMES[0]:
         render_1960_1980()
         generate_buttons(0)

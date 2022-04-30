@@ -43,7 +43,7 @@ def get_years(chosen_country):
 def render_dashboard():
     """Renders the page named 'home'"""
 
-    country_filter, year_filter, top_n_filter, bottom_n_filter = st.columns([2, 6, 2, 2])
+    country_filter, year_filter = st.columns([2, 6])
 
     if 'default_country' not in st.session_state:
         st.session_state['default_country'] = 'China'
@@ -61,12 +61,6 @@ def render_dashboard():
     with year_filter:
         min_year, max_year = get_years(chosen_country)
         chosen_year = st.slider('Year', min_year, max_year, 2020)
-
-    with top_n_filter:
-        chosen_top_n = st.selectbox('No. of Best Profit Counterparts to Display', range(5, 11), 0)
-
-    with bottom_n_filter:
-        chosen_bottom_n = st.selectbox('No. of Worst Loss Counterparts to Display', range(5, 11), 0)
 
     gdp_indicator, population_indicator, import_indicator, export_indicator, trade_bal_indicator = st.columns(
         [1, 1, 1, 1, 1])
@@ -92,13 +86,13 @@ def render_dashboard():
         st.plotly_chart(plot_indicator(dfc_imf_dot, chosen_year, chosen_country,
                                        indicator_name='Trade Balance'), use_container_width=True)
 
-    data = update_data(dfc_imf_dot, chosen_country, chosen_year, chosen_top_n, chosen_bottom_n)
+    data = update_data(dfc_imf_dot, chosen_country, chosen_year)
 
     if data.empty:
         st.markdown("<h1 style='text-align: center; color: grey;'>No trade balance data "
                     "available for the chosen country and year.</h1>", unsafe_allow_html=True)
     else:
-        trade_balance_map = plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, chosen_year)
+        trade_balance_map = plot_trade_balance_map(data, chosen_country, chosen_year)
 
         # update session_state with the country name chosen by user on the map
         chosen_points = plotly_events(trade_balance_map)

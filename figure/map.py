@@ -36,8 +36,8 @@ def get_line_width_mapping(series: pd.Series, line_max_width: int = TRADE_BAL_MA
                                                  np.concatenate((pos_line_width_array, neg_line_width_array)))}
 
 
-def update_data(df: pd.DataFrame, chosen_country: str, chosen_year: int, chosen_top_n: int,
-                chosen_bottom_n: int, trade_type: str = 'Trade Balance') -> pd.DataFrame:
+def update_data(df: pd.DataFrame, chosen_country: str, chosen_year: int, chosen_top_n: int = 5,
+                chosen_bottom_n: int = 5, trade_type: str = 'Trade Balance') -> pd.DataFrame:
     """
     given preprocessed data for plotting the trade balance map, update the data base on user filters
 
@@ -67,7 +67,7 @@ def update_data(df: pd.DataFrame, chosen_country: str, chosen_year: int, chosen_
     return data
 
 
-def plot_trade_balance_map(data, chosen_country, chosen_top_n, chosen_bottom_n, chosen_year,
+def plot_trade_balance_map(data, chosen_country, chosen_year, chosen_top_n=5, chosen_bottom_n=5,
                            chosen_country_color='rgb(255, 232, 84)', counterpart_country_color='rgb(230, 230, 230)',
                            profit_color='rgb(45,237,28)', loss_color='rgb(254,2,1)', land_color='rgb(51, 51, 51)'):
     fig = go.FigureWidget()

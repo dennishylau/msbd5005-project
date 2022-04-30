@@ -62,17 +62,11 @@ def render_dashboard():
         min_year, max_year = get_years(chosen_country)
         chosen_year = st.slider('Year', min_year, max_year, 2020)
 
-    gdp_indicator, population_indicator, import_indicator, export_indicator, trade_bal_indicator = st.columns(
-        [1, 1, 1, 1, 1])
+    gdp_indicator, import_indicator, export_indicator, trade_bal_indicator = st.columns([1, 1, 1, 1])
 
     with gdp_indicator:
         st.plotly_chart(plot_indicator(dfc_worldbank_gdp, chosen_year, chosen_country,
                                        indicator_name='GDP per capita (current US$)'), use_container_width=True)
-
-    with population_indicator:
-        st.plotly_chart(plot_indicator(dfc_population_15_64_percent, chosen_year, chosen_country,
-                                       indicator_name='Population ages 15-64 (% of total population)'),
-                        use_container_width=True)
 
     with import_indicator:
         st.plotly_chart(plot_indicator(dfc_imf_dot, chosen_year, chosen_country,

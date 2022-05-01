@@ -12,7 +12,7 @@ def get_pyramid(dfc_china_pyramid, min_year, max_year, step=1):
     ).transform_filter(
         select_year
     ).properties(
-        width=350
+        width=280
     )
 
     color_scale = alt.Scale(domain=['M', 'F'],

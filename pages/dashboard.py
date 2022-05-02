@@ -1,8 +1,7 @@
 # %%
 import streamlit as st
-import streamlit.components.v1 as components
 import numpy as np
-from cache import dfc_imf_dot, dfc_worldbank_gdp, dfc_population_15_64_percent, dfc_wb_code
+from cache import dfc_imf_dot, dfc_worldbank_gdp
 from figure.map import plot_trade_balance_map, update_data
 from figure.indicator import plot_indicator
 from figure.pie_chart import plot_trade_partner_pie_chart, prepare_data, prepare_color_mapping

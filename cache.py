@@ -54,7 +54,7 @@ dfc_imf_dot = __cache(df_imf_dot[(df_imf_dot['Country Name'].isin(valid_countrie
                                  & (df_imf_dot['Counterpart Country Name'].isin(valid_countries))])
 dfc_china_data = __cache(df_china_data)
 dfc_worldbank_gdp = __cache(df_worldbank_gdp)
-df_worldbank_gdp_per_cap = __cache(df_worldbank_gdp_per_cap)
+dfc_worldbank_gdp_per_cap = __cache(df_worldbank_gdp_per_cap)
 dfc_population_15_64_percent = __cache(df_population_15_64_percent)
 dfc_china_pyramid = __cache(df_china_pyramid)
 dfc_china_pop = __cache(df_china_pop)

@@ -1,162 +1,74 @@
 import streamlit as st
-import altair as alt
-import pandas as pd
-from cache import dfc_china_pyramid, dfc_worldbank_gdp
+from streamlit_option_menu import option_menu
+from cache import dfc_china_pyramid, dfc_china_data, dfc_china_pop, dfc_imf_dot
 from figure.pyramid import get_pyramid
-from paragraphs import econ_status_1960_1, econ_status_1960_2, demographic_1960
 from streamlit.scriptrunner.script_request_queue import RerunData
 from streamlit.scriptrunner.script_runner import RerunException
-from streamlit_option_menu import option_menu
+from pages.periods.render_2001_2010 import render_2001_2010
 
 
-def percentage_difference(x, y):
-    return (y - x) / x
-
-
-def process_gdp(data, countries=('CHN', 'JPN', "IND",)):
-    gdp = data[data['Country Code'].isin(countries)]
-    # events = pd.DataFrame(
-    #     [(year, "Great Leap Forward") for year in range(1958, 1962)] +
-    #     [(year, "Cultural Revolution") for year in range(1965, 1976)] +
-    #     [(1976, "TangShang Earthquake"), ],
-    #     columns=['year', 'events']
-    # )
-
-    gdp = gdp.melt(
-        id_vars='Country Name',
-        value_vars=[c for c in data.columns if c.isnumeric()],
-        var_name='year',
-        value_name="GDP (US$)"
-    )
-    gdp.loc[gdp.index, 'year'] = gdp.loc[gdp.index, 'year'].astype(int)
-    # gdp = gdp.merge(events, on='year', how='left')
-
-    return gdp
-
-
-def get_gdp_series(
-    data,
-    min_year,
-    max_year,
-    countries=('CHN', 'JPN', "IND",),
-    focus_years=(1960, 1969)
-):
-    focus_start, focus_end = focus_years
-    gdp = process_gdp(data, countries)
-    gdp = gdp[
-        (gdp['year'] >= min_year) &
-        (gdp['year'] <= max_year)
+def get_gdp_series(data, min_year, max_year):
+    data = data[
+        (data.index >= min_year) &
+        (data.index <= max_year)
     ]
-
-    gdp_growth = (
-        gdp
-        .set_index('year')['GDP (US$)']
-        .pct_change()
-        .reset_index()
-        .rename({'GDP (US$)': 'Annual GDP growth %'}, axis=1)
-    )
-
-    lines = (
-        alt.Chart(gdp)
-        .mark_line()
-        .encode(
-            x='year',
-            y=alt.Y('GDP (US$):Q', axis=alt.Axis(tickCount=10, format=".1e")),
-        )
-    )
-
-    lines_colored = (
-        alt.Chart(gdp)
-        .mark_line()
-        .encode(
-            x='year',
-            y=alt.Y('GDP (US$):Q', axis=alt.Axis(tickCount=10, format=".1e")),
-            color=alt.value('orange')
-        )
-        .transform_filter(
-            (alt.datum.year >= focus_start) & (alt.datum.year <= focus_end)
-        )
-    )
-
-    bar = (
-        alt.Chart(gdp_growth)
-        .mark_bar()
-        .encode(
-            x='year',
-            y=alt.Y('Annual GDP growth %:Q'),
-        )
-    )
-    bar_colored = (
-        alt.Chart(gdp_growth)
-        .mark_bar()
-        .encode(
-            x='year',
-            y=alt.Y('Annual GDP growth %:Q'),
-            color=alt.value("orange")
-        )
-        .transform_filter(
-            (alt.datum.year >= focus_start) & (alt.datum.year <= focus_end)
-        )
-    )
-
-    return alt.hconcat(
-        lines + lines_colored,
-        bar + bar_colored
-    )
+    return st.line_chart(data['GDP Per Capita (US $)'])
 
 
-def render_1960_1980():
-    MIN_YEAR = 1960
+def get_pop_growth_series(data, min_year, max_year):
+    pct_change = data.pct_change()
+    pct_change = pct_change[
+        (pct_change.index >= min_year) &
+        (pct_change.index <= max_year)
+    ] * 100
+    pct_change.name = r"population % change"
+
+    return st.line_chart(pct_change)
+
+
+def render_1961_1980():
+    MIN_YEAR = 1961
     MAX_YEAR = 1980
 
-    with st.container():
-        _, _, col1, _, _ = st.columns([1, 1, 6, 1, 1])
-        with col1:
-            st.header("State of the Chinese economy")
-
-        _, _, col, _, _ = st.columns([1, 1, 6, 1, 1])
-        with col:
-            st.markdown(econ_status_1960_1, unsafe_allow_html=True)
-            event_selection = st.selectbox('', [
-                'Great famine: 1958-1961',
-                'Cultural revolution: 1965-1975',
-                'Tangshang earthquake: 1976'
-            ])
-
-            if event_selection == 'Great famine: 1958-1961':
-                event_start, event_end = 1958, 1961
-            elif event_selection == 'Cultural revolution: 1965-1975':
-                event_start, event_end = 1965, 1975
-            else:
-                event_start, event_end = 1976, 1977
-
-            gdp_chart = get_gdp_series(
-                dfc_worldbank_gdp,
-                MIN_YEAR,
-                MAX_YEAR,
-                ["CHN"],
-                (event_start, event_end)
-            )
-
-            st.altair_chart(gdp_chart,)
-            st.markdown(
-                econ_status_1960_2
-            )
-
-    with st.container():
-        _, _, col1, _, _ = st.columns([1, 1, 6, 1, 1])
-        with col1:
-            st.header("The human capital")
-        _, _, col1, col2, _, _ = st.columns([1, 1, 3, 3, 1, 1])
-        with col1:
-            st.write(demographic_1960)
-        with col2:
-            pyramid = get_pyramid(dfc_china_pyramid, MIN_YEAR, MAX_YEAR)
-            st.altair_chart(pyramid, use_container_width=True)
+    st.header("1961 - 1980")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(
+            """
+                In the years from 1961 to 1975, China was a very poor country. 
+                The average GDP was aruound X dollars per capita, 
+                that's just a little over Y percent of the US during
+                the same time period.
+                """
+        )
+    with col2:
+        get_gdp_series(dfc_china_data, MIN_YEAR, MAX_YEAR)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(
+            r"""
+                At the beginning of the 60's, much of China's population 
+                is skewed towards the young side, with over X% of the 
+                being in between 0 - 15 years old. We can see a steady 
+                growth in the workforce as the years go by. By the 1980's,
+                China's workforce has grown to Y.
+                China's large and young population can provide cost 
+                competitive labour, which benefits its 
+                efforts to open up its economy and in the late 70's.
+                Interestingly, the Chinese Communist Party implemented the
+                infamous "One Child Policy" in the year 1980. We will 
+                see the policy's effects on the population and China's 
+                economic future in later chapters.
+            """
+        )
+    with col2:
+        pyramid = get_pyramid(dfc_china_pyramid, MIN_YEAR, MAX_YEAR)
+        st.altair_chart(pyramid, use_container_width=True)
+    st.line_chart(get_pop_growth_series(dfc_china_pop, MIN_YEAR, MAX_YEAR))
 
 
-MENU_NAMES = ['1960 - 1980', '1980 - 2000',
-              '2000 - 2010', '2010 - 2020', '2020 - ?']
+MENU_NAMES = ['1960 - 1980', '1981 - 2000',
+              '2001 - 2010', '2011 - 2020', '2021 - ?']
 
 
 def next_button_callback(menu_name):
@@ -196,15 +108,20 @@ def render_history():
         default_index=MENU_NAMES.index(st.session_state['timeline_page']), orientation="horizontal")
 
     if menu == MENU_NAMES[0]:
-        render_1960_1980()
+        render_1961_1980()
         generate_buttons(0)
 
     elif menu == MENU_NAMES[1]:
         generate_buttons(1)
+
     elif menu == MENU_NAMES[2]:
+        render_2001_2010(dfc_china_data, dfc_imf_dot)
         generate_buttons(2)
+
     elif menu == MENU_NAMES[3]:
         generate_buttons(3)
+
     elif menu == MENU_NAMES[4]:
         return generate_buttons(4)
+
     return False

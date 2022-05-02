@@ -1,8 +1,7 @@
 # %%
 import streamlit as st
-import streamlit.components.v1 as components
 import numpy as np
-from cache import dfc_imf_dot, dfc_worldbank_gdp, dfc_population_15_64_percent, dfc_wb_code
+from cache import dfc_imf_dot, dfc_worldbank_gdp_per_cap
 from figure.map import plot_trade_balance_map, update_data
 from figure.indicator import plot_indicator
 from figure.pie_chart import plot_trade_partner_pie_chart, prepare_data, prepare_color_mapping
@@ -65,7 +64,7 @@ def render_dashboard():
     gdp_indicator, import_indicator, export_indicator, trade_bal_indicator = st.columns([1, 1, 1, 1])
 
     with gdp_indicator:
-        st.plotly_chart(plot_indicator(dfc_worldbank_gdp, chosen_year, chosen_country,
+        st.plotly_chart(plot_indicator(dfc_worldbank_gdp_per_cap, chosen_year, chosen_country,
                                        indicator_name='GDP per capita (current US$)'), use_container_width=True)
 
     with import_indicator:

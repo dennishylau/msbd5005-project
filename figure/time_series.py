@@ -47,3 +47,92 @@ def plot_import_export_time_series(dfc_imf_dot, country, selected_years, trade_t
                           strokeDash='Counterpart Country Name')
                   .interactive())
     return line_chart
+
+
+def percentage_difference(x, y):
+    return (y - x) / x
+
+
+def process_gdp(data, countries=('CHN', 'JPN', "IND",)):
+    gdp = data[data['Country Code'].isin(countries)]
+
+    gdp = gdp.melt(
+        id_vars='Country Name',
+        value_vars=[c for c in data.columns if c.isnumeric()],
+        var_name='year',
+        value_name="GDP (US$)"
+    )
+    gdp.loc[gdp.index, 'year'] = gdp.loc[gdp.index, 'year'].astype(int)
+
+    return gdp
+
+
+def get_gdp_charts(
+    data,
+    min_year,
+    max_year,
+    countries=('CHN', 'JPN', "IND",),
+    focus_years=(1960, 1969)
+):
+    focus_start, focus_end = focus_years
+    gdp = process_gdp(data, countries)
+    gdp = gdp[
+        (gdp['year'] >= min_year) &
+        (gdp['year'] <= max_year)
+    ]
+
+    gdp_growth = (
+        gdp
+        .set_index('year')['GDP (US$)']
+        .pct_change()
+        .reset_index()
+        .rename({'GDP (US$)': 'Annual GDP growth %'}, axis=1)
+    )
+
+    lines = (
+        alt.Chart(gdp)
+        .mark_line()
+        .encode(
+            x='year',
+            y=alt.Y('GDP (US$):Q', axis=alt.Axis(tickCount=10, format=".1e")),
+        )
+    )
+
+    lines_colored = (
+        alt.Chart(gdp)
+        .mark_line()
+        .encode(
+            x='year',
+            y=alt.Y('GDP (US$):Q', axis=alt.Axis(tickCount=10, format=".1e")),
+            color=alt.value('orange')
+        )
+        .transform_filter(
+            (alt.datum.year >= focus_start) & (alt.datum.year <= focus_end)
+        )
+    )
+
+    bar = (
+        alt.Chart(gdp_growth)
+        .mark_bar()
+        .encode(
+            x='year',
+            y=alt.Y('Annual GDP growth %:Q'),
+        )
+    )
+    bar_colored = (
+        alt.Chart(gdp_growth)
+        .mark_bar()
+        .encode(
+            x='year',
+            y=alt.Y('Annual GDP growth %:Q'),
+            color=alt.value("orange")
+        )
+        .transform_filter(
+            (alt.datum.year >= focus_start) & (alt.datum.year <= focus_end)
+        )
+    )
+
+    return alt.hconcat(
+        lines + lines_colored,
+        bar + bar_colored
+    )

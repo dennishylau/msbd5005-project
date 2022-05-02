@@ -1,9 +1,10 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
-from cache import dfc_china_pyramid, dfc_china_data, dfc_china_pop
+from cache import dfc_china_pyramid, dfc_china_data, dfc_china_pop, dfc_imf_dot
 from figure.pyramid import get_pyramid
 from streamlit.scriptrunner.script_request_queue import RerunData
 from streamlit.scriptrunner.script_runner import RerunException
+from pages.periods.render_2001_2010 import render_2001_2010
 
 
 def get_gdp_series(data, min_year, max_year):
@@ -25,16 +26,16 @@ def get_pop_growth_series(data, min_year, max_year):
     return st.line_chart(pct_change)
 
 
-def render_1960_1980():
-    MIN_YEAR = 1960
+def render_1961_1980():
+    MIN_YEAR = 1961
     MAX_YEAR = 1980
 
-    st.header("1960 - 1980")
+    st.header("1961 - 1980")
     col1, col2 = st.columns(2)
     with col1:
         st.write(
             """
-                In the years from 1960 to 1975, China was a very poor country. 
+                In the years from 1961 to 1975, China was a very poor country. 
                 The average GDP was aruound X dollars per capita, 
                 that's just a little over Y percent of the US during
                 the same time period.
@@ -68,7 +69,7 @@ def render_1960_1980():
     st.line_chart(get_pop_growth_series(dfc_china_pop, MIN_YEAR, MAX_YEAR))
 
 
-MENU_NAMES = ['1960 - 1980', '1980 - 2000', '2000 - 2010', '2010 - 2020', '2020 - ?']
+MENU_NAMES = ['1960 - 1980', '1981 - 2000', '2001 - 2010', '2011 - 2020', '2021 - ?']
 
 
 def next_button_callback(menu_name):
@@ -108,15 +109,20 @@ def render_history():
         default_index=MENU_NAMES.index(st.session_state['timeline_page']), orientation="horizontal")
 
     if menu == MENU_NAMES[0]:
-        render_1960_1980()
+        render_1961_1980()
         generate_buttons(0)
 
     elif menu == MENU_NAMES[1]:
         generate_buttons(1)
+
     elif menu == MENU_NAMES[2]:
+        render_2001_2010(dfc_china_data, dfc_imf_dot)
         generate_buttons(2)
+
     elif menu == MENU_NAMES[3]:
         generate_buttons(3)
+
     elif menu == MENU_NAMES[4]:
         return generate_buttons(4)
+
     return False

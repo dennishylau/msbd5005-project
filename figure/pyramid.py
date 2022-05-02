@@ -7,12 +7,15 @@ def get_pyramid(dfc_china_pyramid, min_year, max_year, step=1):
     select_year = alt.selection_single(name='Year', fields=['year'],
                                        bind=slider, init={'year': min_year})
 
+    dfc_china_pyramid['people'] = dfc_china_pyramid.groupby(
+        ['year', 'sex'])['people'].apply(lambda x: x / x.sum())
+
     base = alt.Chart(dfc_china_pyramid).add_selection(
         select_year
     ).transform_filter(
         select_year
     ).properties(
-        width=280
+        width=230
     )
 
     color_scale = alt.Scale(domain=['M', 'F'],
@@ -61,7 +64,22 @@ def get_pyramid(dfc_china_pyramid, min_year, max_year, step=1):
         size=alt.SizeValue(1)
     )
 
+    right_ind = alt.Chart(
+        pd.DataFrame({
+            "x": [.15]*3,
+            "Age": [5, 25, 70],
+            "Group": ["Dependents", "Tax payers", "Retirees"]
+        })
+    ).encode(
+        x='x:Q',
+        y=alt.Y('Age:N', axis=None, sort=alt.SortOrder('descending')),
+        text=alt.Text('Group:N'),
+    ).mark_text(
+        color='white',
+        # clip=False
+    ).properties(title='Group', width=35)
+
     left = (left + left_rule).resolve_scale()
-    right = (right + right_rule).resolve_scale()
+    right = (right + right_rule).resolve_scale() + right_ind
 
     return alt.concat(left, middle, right, spacing=5)

@@ -11,16 +11,16 @@ def get_gdp_series(data, min_year, max_year):
     data = data[
         (data.index >= min_year) &
         (data.index <= max_year)
-        ]
+    ]
     return st.line_chart(data['GDP Per Capita (US $)'])
 
 
 def get_pop_growth_series(data, min_year, max_year):
     pct_change = data.pct_change()
     pct_change = pct_change[
-                     (pct_change.index >= min_year) &
-                     (pct_change.index <= max_year)
-                     ] * 100
+        (pct_change.index >= min_year) &
+        (pct_change.index <= max_year)
+    ] * 100
     pct_change.name = r"population % change"
 
     return st.line_chart(pct_change)
@@ -52,11 +52,9 @@ def render_1961_1980():
                 being in between 0 - 15 years old. We can see a steady 
                 growth in the workforce as the years go by. By the 1980's,
                 China's workforce has grown to Y.
-
                 China's large and young population can provide cost 
                 competitive labour, which benefits its 
                 efforts to open up its economy and in the late 70's.
-
                 Interestingly, the Chinese Communist Party implemented the
                 infamous "One Child Policy" in the year 1980. We will 
                 see the policy's effects on the population and China's 
@@ -69,7 +67,8 @@ def render_1961_1980():
     st.line_chart(get_pop_growth_series(dfc_china_pop, MIN_YEAR, MAX_YEAR))
 
 
-MENU_NAMES = ['1960 - 1980', '1981 - 2000', '2001 - 2010', '2011 - 2020', '2021 - ?']
+MENU_NAMES = ['1960 - 1980', '1981 - 2000',
+              '2001 - 2010', '2011 - 2020', '2021 - ?']
 
 
 def next_button_callback(menu_name):

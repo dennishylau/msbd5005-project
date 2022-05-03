@@ -1,42 +1,44 @@
-econ_status_1960 = """
+econ_status_1960_1 = """
     Before the economic reforms in 1978, China maintained Soviet style,
     centrally planned economy. A large share of the country’s industrial
     output was directed and controlled by state owned enterprises, which
     are often bureaucractic and inefficient at distributing resources.
 
-    China also experienced various types of events that saw its growth hindered.
-    Hover the graph on the right to see more. 
 
-    As a result, China's economic development during the 1960s to 1970s
-    was miniscule.
-
-    Comparing the annual GDP of China to countries like Japan and India, we
-    can get a glimpse of its growth relative to other countries at the
-    same time period. All three countries shared a similar GDP at the start,
-    Japan's GDP growth started to diverge around 1965, while China's growth
-    maintained more or less the same as India's.
+    China's economy also suffered a series of setbacks throughout 1960 to 1976,
+    either due to political turmoil or natural diasaters. Including but not limited
+    to:
 """
 
-econ_summary_1960 = """
-    We can summarize the vicennial of economic development by taking GDP 
-    percent difference between 1960 and 1980. It's obvious that China's
-    economic development was lackluster in this time period. However, all 
-    is about to change in the following years.
+econ_status_1960_2 = """
+    The compounded effects of these events is a rocky growth curve, GDP growth 
+    periodically shift between positive and negative in years before 1978. 
+    In 1978, then Chinese premiere, Ding Xiaoping annouced a plan for economic
+    reform, under which we would see China adopting free-market principles and
+    eventually become the current economic power house. But on what basis was
+    this reform based on?
 """
 
-demographic_1960 = r"""
-    At the beginning of the 60's, much of China's population 
-    is skewed towards the young side, with over X% of the 
-    being in between 0 - 15 years old. We can see a steady 
-    growth in the workforce as the years go by. By the 1980's,
-    China's workforce has grown to Y.
+demographic_1960 = """
+    At the beginning of the 60's, China's demographic is very young, with over 
+    half of its population under the age of 20. Traditional wisdom suggests
+    that a young population is the bed-rock of an economy, this is 
+    particularly true for countries industrial output depends largly on
+    manual work, such as China.
 
-    China's large and young population can provide cost 
-    competitive labour, which benefits its 
-    efforts to open up its economy and in the late 70's.
+    If we take a look at China's population pyramid in 1960, it takes the 
+    shape of what is known as a "expansive population", meaning the fertility 
+    rates are high and lower life expectancies. A society with an "expansive 
+    population", will be able to offer cost competitive labour and a ticket
+    to get wealthy. Of course, this also depends on the investment and political
+    environment. That is why even though China has an expansive pyramid in much
+    of the 60s to 70s, it didn't amount to any significant economic growth.
 
-    Interestingly, the Chinese Communist Party implemented the
-    infamous "One Child Policy" in the year 1980. We will 
-    see the policy's effects on the population and China's 
-    economic future in later chapters.
+    Moving into 1980s, the bulk of Chinese population is moving into tax paying 
+    age group, acompanied by Ding's economic reform policies, China is in a 
+    very good position to welcome an incoming economic boom. 
+
+    Interestingly, the year 1980 was when the Chinese Government implemented the
+    infamous "One Child Policy" in the year 1980. A policy that will haunt 
+    the country for years to come. We shall revisit this topic in later chapters.
 """

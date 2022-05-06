@@ -68,8 +68,8 @@ def render_1960_1980():
             st.altair_chart(pyramid, use_container_width=True)
 
 
-MENU_NAMES = ['1960 - 1980', '1980 - 2000',
-              '2000 - 2010', '2010 - 2020', '2020 - ?']
+MENU_NAMES = ['1960 - 1980', '1981 - 2000',
+              '2001 - 2010', '2011 - 2020', '2021 - ?']
 
 
 def next_button_callback(menu_name):

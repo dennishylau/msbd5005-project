@@ -6,17 +6,16 @@ from cache import (
     dfc_worldbank_gdp,
     dfc_worldbank_gdp_per_cap,
     dfc_china_pop,
+    dfc_china_gdp_comp,
     dfc_china_data,
     dfc_imf_dot
 )
-from figure.pyramid import get_pyramid
-from figure.time_series import get_gdp_charts
-from paragraphs import econ_status_1960_1, econ_status_1960_2, demographic_1960
 from streamlit.scriptrunner.script_request_queue import RerunData
 from streamlit.scriptrunner.script_runner import RerunException
 from streamlit_option_menu import option_menu
 from pages.periods.render_2001_2010 import render_2001_2010
 from pages.periods.render_1960_1980 import render_1960_1980
+from pages.periods.render_1981_2000 import render_1981_2000
 
 
 MENU_NAMES = ['1960 - 1980', '1981 - 2000',
@@ -60,10 +59,16 @@ def render_history():
         default_index=MENU_NAMES.index(st.session_state['timeline_page']), orientation="horizontal")
 
     if menu == MENU_NAMES[0]:
-        render_1960_1980(dfc_worldbank_gdp, dfc_china_pyramid)
+        render_1960_1980(dfc_worldbank_gdp, dfc_china_data, dfc_china_pyramid)
         generate_buttons(0)
 
     elif menu == MENU_NAMES[1]:
+        render_1981_2000(
+            dfc_worldbank_gdp,
+            dfc_china_data,
+            dfc_china_pyramid,
+            dfc_china_gdp_comp
+        )
         generate_buttons(1)
     elif menu == MENU_NAMES[2]:
         render_2001_2010(dfc_china_data, dfc_imf_dot)

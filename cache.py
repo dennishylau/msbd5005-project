@@ -9,10 +9,11 @@ from preprocess import (
     df_population_15_64_percent,
     df_china_data,
     df_china_pyramid,
-    df_china_pop)
+    df_china_pop,
+    df_china_gdp_comp
+)
 
 COUNTRY_CODE_MAPPING = df_wb_code.set_index('code')['name'].to_dict()
-
 
 
 @st.experimental_memo
@@ -40,10 +41,14 @@ def align_country_name(df: pd.DataFrame, country_name_col: str, code_col: str):
     return df
 
 
-df_imf_dot = align_country_name(df_imf_dot, 'Country Name', 'Country Code ISO3')
-df_imf_dot = align_country_name(df_imf_dot, 'Counterpart Country Name', 'Counterpart Country Code ISO3')
-df_worldbank_gdp = align_country_name(df_worldbank_gdp, 'Country Name', 'Country Code')
-df_population_15_64_percent = align_country_name(df_population_15_64_percent, 'Country Name', 'Country Code')
+df_imf_dot = align_country_name(
+    df_imf_dot, 'Country Name', 'Country Code ISO3')
+df_imf_dot = align_country_name(
+    df_imf_dot, 'Counterpart Country Name', 'Counterpart Country Code ISO3')
+df_worldbank_gdp = align_country_name(
+    df_worldbank_gdp, 'Country Name', 'Country Code')
+df_population_15_64_percent = align_country_name(
+    df_population_15_64_percent, 'Country Name', 'Country Code')
 
 valid_countries = get_valid_countries(df_imf_dot)
 
@@ -58,3 +63,4 @@ dfc_worldbank_gdp_per_cap = __cache(df_worldbank_gdp_per_cap)
 dfc_population_15_64_percent = __cache(df_population_15_64_percent)
 dfc_china_pyramid = __cache(df_china_pyramid)
 dfc_china_pop = __cache(df_china_pop)
+dfc_china_gdp_comp = __cache(df_china_gdp_comp)

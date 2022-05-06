@@ -1,13 +1,21 @@
 import streamlit as st
 import altair as alt
 import pandas as pd
-from cache import dfc_china_pyramid, dfc_worldbank_gdp
+from cache import (
+    dfc_china_pyramid,
+    dfc_worldbank_gdp,
+    dfc_worldbank_gdp_per_cap,
+    dfc_china_pop,
+    dfc_china_data,
+    dfc_imf_dot
+)
 from figure.pyramid import get_pyramid
 from figure.time_series import get_gdp_charts
 from paragraphs import econ_status_1960_1, econ_status_1960_2, demographic_1960
 from streamlit.scriptrunner.script_request_queue import RerunData
 from streamlit.scriptrunner.script_runner import RerunException
 from streamlit_option_menu import option_menu
+from pages.periods.render_2001_2010 import render_2001_2010
 
 
 def render_1960_1980():
@@ -60,8 +68,8 @@ def render_1960_1980():
             st.altair_chart(pyramid, use_container_width=True)
 
 
-MENU_NAMES = ['1960 - 1980', '1980 - 2000',
-              '2000 - 2010', '2010 - 2020', '2020 - ?']
+MENU_NAMES = ['1960 - 1980', '1981 - 2000',
+              '2001 - 2010', '2011 - 2020', '2021 - ?']
 
 
 def next_button_callback(menu_name):
@@ -107,6 +115,7 @@ def render_history():
     elif menu == MENU_NAMES[1]:
         generate_buttons(1)
     elif menu == MENU_NAMES[2]:
+        render_2001_2010(dfc_china_data, dfc_imf_dot)
         generate_buttons(2)
     elif menu == MENU_NAMES[3]:
         generate_buttons(3)

@@ -118,7 +118,11 @@ def render_history():
         render_2001_2010(dfc_china_data, dfc_imf_dot)
         generate_buttons(2)
     elif menu == MENU_NAMES[3]:
-        generate_buttons(3)
+        from pages.periods.render_2011_2020 import render_2011_2020
+        render_2011_2020()
+        return generate_buttons(3)
     elif menu == MENU_NAMES[4]:
+        from pages.periods.render_2021 import render_2021
+        render_2021()
         return generate_buttons(4)
     return False

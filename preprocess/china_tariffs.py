@@ -8,7 +8,7 @@ import pandas as pd
 csv_path = 'data/df_china_tariffs.csv'
 
 try:
-    df_china_tariffs = pd.read_csv(csv_path)
+    df_china_tariffs = pd.read_csv(csv_path, dtype='object')
 except FileNotFoundError:
     dfs = tabula.io.read_pdf('data/China Tariffs.pdf', pages='all')
     df_china_tariffs = pd.concat(dfs)

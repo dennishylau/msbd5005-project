@@ -19,6 +19,10 @@ df_comtrade = df_comtrade_agg_6.merge(
     suffixes=('', '_agg_2'))
 df_comtrade = df_comtrade.query('`Trade Flow` == "Export"')
 df_china_tariffs['tariff'] = 'true'
+df_comtrade['Commodity Code_agg_6'] = df_comtrade['Commodity Code_agg_6'].astype(
+    str)
+df_china_tariffs['china_tariffs'] = df_china_tariffs['china_tariffs'].astype(
+    str)
 df_comtrade = df_comtrade.merge(
     df_china_tariffs, how='left', left_on='Commodity Code_agg_6',
     right_on='china_tariffs')

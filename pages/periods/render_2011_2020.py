@@ -26,7 +26,11 @@ DESCRIBE_DIRECTION_OF_TRADE = '''
 
 
 DESCRIBE_TREEMAP = '''
-    The following treemap shows all categories and subcategories of commodities impacted by the Trade War. You can click a category to zoom in, and see its corresponding subcategories in more detail. Size of boxes within the treemap are proportional to the trade value for the commodity category. Red boxes indicate categories with additional tariff specific to China; green boxes indicate unimpacted categories; while grey boxes have some subcategories that were impacted, and others that were not impacted.
+    The following treemap shows all categories and subcategories of commodities impacted by the Trade War.
+
+    You can click a category to zoom in, and see its corresponding subcategories in more detail. Size of boxes within the treemap are proportional to the trade value for the commodity category.
+
+    Red boxes indicate categories with additional tariff specific to China; grey boxes indicate unimpacted categories; while navy boxes have some subcategories that were impacted, and others that were not impacted. Click on navy boxes to explore subcategories impacts.
     '''
 
 DESCRIBE_BALANCE_OF_TRADE = '''

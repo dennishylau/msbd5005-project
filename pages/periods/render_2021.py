@@ -1,5 +1,4 @@
 import plotly.graph_objects as go
-import plotly.express as px
 import pandas as pd
 import json
 import streamlit as st
@@ -23,7 +22,7 @@ s_total_death_log = np.log10(
 s_total_death_log[zero_mask] = 0
 df_total_death['total_death_log'] = s_total_death_log
 
-with open('data/gadm36_CHN_1.json') as file:
+with open('data/gadm36_CHN_1.json', encoding='utf-8') as file:
     geojson = json.load(file)
 
 fig_height = 600

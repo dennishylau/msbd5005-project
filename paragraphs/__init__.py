@@ -42,3 +42,30 @@ demographic_1960 = """
     infamous "One Child Policy" in the year 1980. A policy that will haunt 
     the country for years to come. We shall revisit this topic in later chapters.
 """
+
+econ_status_1980_1 = """
+    In 1979, then Chinese leader Deng Xiaoping stated that the eventual goal of
+    Chinese modernization is a society in which most people are moderately 
+    well off and middle class. 
+
+    In 1992, the 14th National Communist Party Congress was held,
+    during which party members backed Deng's push for further market reforms.
+    The same year, China's GDP rallied behind Deng's cause and rose by a 
+    staggering 12.8%. From 1992 onwards, China's GDP entered an accelerating
+    phase, where its average GDP growth would be no less than 10% annualy.
+"""
+
+sector_gdp_1980_1 = """
+    During this time period, China's economy underwent quite a shift. In 1978, 
+    much of the economic sector was dominated by agriculture and industry.
+
+    As more of the population became richer, China's tertiary sector slowly but
+    steadily increased. The services sector went from 24% of GDP in 1978 to 
+    nearly 40% by 2000. At the same time, the agricuture contracted in value added
+    percentage to the GDP. 
+"""
+
+demographic_1980 = """
+    As previously mentioned, the one child policy was signed into law in 1980
+
+"""

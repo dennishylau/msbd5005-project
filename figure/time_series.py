@@ -64,6 +64,7 @@ def get_gdp_charts(
     focus_years=(1960, 1969)
 ):
     focus_start, focus_end = focus_years
+
     gdp = dfc_worldbank_gdp[dfc_worldbank_gdp['Country Code'].isin(countries)]
 
     gdp = gdp.melt(
@@ -77,13 +78,6 @@ def get_gdp_charts(
         (gdp['year'] >= min_year) &
         (gdp['year'] <= max_year)
     ]
-    # gdp_growth = (
-    #     gdp
-    #     .set_index('year')['GDP (US$)']
-    #     .pct_change()
-    #     .reset_index()
-    #     .rename({'GDP (US$)': 'Annual GDP growth %'}, axis=1)
-    # )
     gdp_growth = dfc_china_data['GDP Growth (%)'].reset_index()
     gdp_growth = gdp_growth.rename({
         "Year": 'year'
@@ -93,11 +87,20 @@ def get_gdp_charts(
         (gdp_growth['year'] <= max_year)
     ]
 
+    nearest = alt.selection(type='single', nearest=True, on='mouseover',
+                            fields=['year'], empty='none')
+    selectors = alt.Chart(gdp).mark_point().encode(
+        x='year:Q',
+        opacity=alt.value(0),
+    ).add_selection(
+        nearest
+    )
+
     lines = (
         alt.Chart(gdp)
         .mark_line()
         .encode(
-            x='year',
+            x='year:Q',
             y=alt.Y('GDP (US$):Q', axis=alt.Axis(tickCount=10, format=".1e")),
         )
     )
@@ -134,6 +137,42 @@ def get_gdp_charts(
         .transform_filter(
             (alt.datum.year >= focus_start) & (alt.datum.year <= focus_end)
         )
+    )
+
+    points = lines.mark_point().encode(
+        opacity=alt.condition(nearest, alt.value(1), alt.value(0))
+    )
+    text = lines.mark_text(align='left', dx=-50, dy=-5).encode(
+        text=alt.condition(nearest, alt.Tooltip(
+            'GDP (US$):Q', format=',.2f'), alt.value(' ')),
+        color=alt.value('white')
+    )
+    rules = alt.Chart(gdp).mark_rule(color='gray').encode(
+        x='year:Q',
+        size=alt.SizeValue(3)
+    ).transform_filter(
+        nearest
+    )
+
+    points_bar = bar.mark_point().encode(
+        opacity=alt.condition(nearest, alt.value(1), alt.value(0))
+    )
+    text_bar = bar.mark_text(align='left', dx=-50, dy=-5).encode(
+        text=alt.condition(nearest, 'GDP Growth (%):Q', alt.value(' ')),
+        color=alt.value('white')
+    )
+    rules_bar = alt.Chart(gdp_growth).mark_rule(color='gray').encode(
+        x='year:Q',
+        size=alt.SizeValue(3)
+    ).transform_filter(
+        nearest
+    )
+
+    lines = alt.layer(
+        lines, selectors, points, rules, text
+    )
+    bar = alt.layer(
+        bar, points_bar, rules_bar, text_bar
     )
 
     return alt.hconcat(

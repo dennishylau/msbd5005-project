@@ -19,7 +19,7 @@ from pages.periods.render_1981_2000 import render_1981_2000
 
 
 MENU_NAMES = ['1960 - 1980', '1981 - 2000',
-              '2001 - 2010', '2011 - 2020', '2021 - ?']
+              '2001 - 2010', '2011 - 2020', '2021 - Present']
 
 
 def next_button_callback(menu_name):

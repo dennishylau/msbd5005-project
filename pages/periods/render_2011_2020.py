@@ -20,7 +20,6 @@ plots = [
 ]
 
 
-@pickle_cache('fig_bt')
 def get_fig_bt():
     'Balance of Trade'
     return (
@@ -41,18 +40,22 @@ def get_fig_bt():
         .add_trace(go.Scatter(
             name='',
             x=dfc_china_data.index,
-            y=dfc_china_data[plots[0]]))
+            y=dfc_china_data[plots[0]],
+            xhoverformat='%Y',
+            hovertemplate='%{y}'))
         .add_trace(go.Scatter(
             name='',
             x=dfc_china_data.index,
             y=dfc_china_data[plots[1]],
-            hovertemplate='%{y:.2%}'),
+            xhoverformat='%Y',
+            hovertemplate='%{y:,.2%}'),
             row=3, col=1)
         .add_trace(go.Scatter(
             name='',
             x=dfc_china_data.index,
             y=dfc_china_data[plots[2]],
-            hovertemplate='%{y:.2%}'),
+            xhoverformat='%Y',
+            hovertemplate='%{y:,.2%}'),
             row=4, col=1)
         .update_yaxes(tickformat=',.0%', row=3, col=1)
         .update_yaxes(tickformat=',.0%', row=4, col=1)
@@ -89,7 +92,6 @@ df_dot.columns = df_dot.columns.astype(int)
 df_dot = df_dot.T
 
 
-@pickle_cache('fig_dot')
 def get_fig_dot():
     'IMF Direction of Trade'
     return (
@@ -100,19 +102,22 @@ def get_fig_dot():
                     x=df_dot.index,
                     y=df_dot['Export'] - df_dot['Import'],
                     opacity=0.0,
-                    showlegend=False),
+                    showlegend=False,
+                    xhoverformat='%Y'),
                 go.Scatter(
                     name='Export',
                     x=df_dot.index,
                     y=df_dot['Export'],
                     line_color='yellow',
-                    showlegend=True),
+                    showlegend=True,
+                    xhoverformat='%Y'),
                 go.Scatter(
                     name='Import',
                     x=df_dot.index,
                     y=df_dot['Import'],
                     line_color='pink',
                     showlegend=True,
+                    xhoverformat='%Y',
                     text=df_dot['Export'] - df_dot['Import']),
             ],
             layout_yaxis_range=[0, 6.2e11]

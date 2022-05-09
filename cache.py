@@ -15,7 +15,8 @@ from preprocess import (
     df_china_pop,
     df_china_gdp_comp,
     df_china_tariffs,
-    df_comtrade
+    df_comtrade,
+    df_total_death
 )
 
 COUNTRY_CODE_MAPPING = df_wb_code.set_index('code')['name'].to_dict()
@@ -94,3 +95,4 @@ dfc_china_pop = __cache(df_china_pop)
 dfc_china_gdp_comp = __cache(df_china_gdp_comp)
 dfc_china_tariffs = __cache(df_china_tariffs)
 dfc_comtrade = __cache(df_comtrade)
+dfc_total_death = __cache(df_total_death)

@@ -6,3 +6,4 @@ from .worldbank_data import df_worldbank_gdp, df_worldbank_gdp_per_cap, df_popul
 from .worldbank_data import df_worldbank_gdp, df_worldbank_gdp_per_cap, df_population_15_64_percent
 from .china_tariffs import df_china_tariffs
 from .comtrade import df_comtrade
+from .china_covid import df_total_death, get_df_death_ts_gp

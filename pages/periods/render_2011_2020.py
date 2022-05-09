@@ -45,25 +45,29 @@ def get_fig_bt():
         .add_trace(go.Scatter(
             name='',
             x=dfc_china_data.index,
-            y=dfc_china_data[plots[1]]),
+            y=dfc_china_data[plots[1]],
+            hovertemplate='%{y:.2%}'),
             row=3, col=1)
         .add_trace(go.Scatter(
             name='',
             x=dfc_china_data.index,
-            y=dfc_china_data[plots[2]]),
+            y=dfc_china_data[plots[2]],
+            hovertemplate='%{y:.2%}'),
             row=4, col=1)
         .update_yaxes(tickformat=',.0%', row=3, col=1)
         .update_yaxes(tickformat=',.0%', row=4, col=1)
-        .add_vline(
-            x=2018, line_width=3,
-            line_dash='dash', line_color='cyan',
-            annotation_text='2018')
         .update_xaxes(
             showticklabels=True,  # show x axis on all 3 plots
             showspikes=True,
             spikedash='dash',
             spikecolor='orange',
-            spikemode="toaxis+across+marker")
+            spikemode='toaxis+across+marker',
+            type='date')
+        .add_vline(
+            x=1514764800000,  # epoch time
+            line_width=3,
+            line_dash='dash', line_color='cyan',
+            annotation_text='2018')
         .update_traces(xaxis='x3')
         .update_layout(
             hovermode='x unified',
@@ -114,7 +118,8 @@ def get_fig_dot():
             layout_yaxis_range=[0, 6.2e11]
         )
         .add_vline(
-            x=2018, line_width=3,
+            x=1514764800000,  # epoch time
+            line_width=3,
             line_dash='dash', line_color='cyan',
             annotation_text='2018')
         .update_xaxes(
@@ -122,7 +127,8 @@ def get_fig_dot():
             showspikes=True,
             spikedash='dash',
             spikecolor='orange',
-            spikemode="toaxis+across+marker")
+            spikemode='toaxis+across+marker',
+            type='date')
         .update_layout(
             title='China Export & Import against United States',
             height=600,
@@ -137,34 +143,37 @@ def get_fig_dot():
 
 @pickle_cache('fig_goods')
 def get_fig_goods():
-    fig_goods = (px.treemap(
-        dfc_comtrade,
-        path=['Trade Flow', 'Commodity_short',
-              'Commodity_agg_4_short', 'Commodity_agg_6_short'],
-        values='Trade Value (US$)', maxdepth=-1, color='tariff',
-        color_discrete_map={'(?)': 'grey', 'false': 'green',
-                            'true': 'red'},
-        custom_data=dfc_comtrade
-        [['Commodity_long', 'Commodity_agg_4_long',
-          'Commodity_agg_6_long']],).
-        update_layout(
-        title='Commodity Categories, China Export to United States',
-        height=600, margin=dict(
-            t=50, l=25, r=25, b=25),).
-        update_traces(
-        root_color='#383948', textfont=dict(color="white"),
-        hoverlabel=dict(font=dict(color='white')),
-        hovertemplate='<br>'.join(
-            ['Category (HS 2-digit): %{customdata[0]}<br>',
-             'Subcategory (HS 4-digit): %{customdata[1]}<br>',
-             'Subcategory (HS 6-digit): %{customdata[2]}<br>',
-             'Trade Value: $%{value:,.0f} USD',
-             '<extra></extra>'])).update_layout(
-        title_font_color='white', paper_bgcolor='#101116',
-        showlegend=True,
-        legend=dict(
-                         orientation="h", yanchor="bottom", y=1.038,
-                         xanchor="right", x=1, font=dict(color='white'))))
+    fig_goods = (
+        px.treemap(
+            dfc_comtrade,
+            path=['Trade Flow', 'Commodity_short',
+                  'Commodity_agg_4_short', 'Commodity_agg_6_short'],
+            values='Trade Value (US$)', maxdepth=-1, color='tariff',
+            color_discrete_map={'(?)': 'grey', 'false': 'green',
+                                'true': 'red'},
+            custom_data=dfc_comtrade
+            [['Commodity_long', 'Commodity_agg_4_long',
+              'Commodity_agg_6_long']],)
+        .update_layout(
+            title='Commodity Categories, China Export to United States',
+            height=600,
+            margin=dict(t=50, l=25, r=25, b=25))
+        .update_traces(
+            root_color='#383948', textfont=dict(color="white"),
+            hoverlabel=dict(font=dict(color='white')),
+            hovertemplate='<br>'.join(
+                ['Category (HS 2-digit): %{customdata[0]}<br>',
+                 'Subcategory (HS 4-digit): %{customdata[1]}<br>',
+                 'Subcategory (HS 6-digit): %{customdata[2]}<br>',
+                 'Trade Value: $%{value:,.0f} USD',
+                 '<extra></extra>']))
+        .update_layout(
+            title_font_color='white',
+            paper_bgcolor='#101116',
+            showlegend=True,
+            legend=dict(
+                orientation="h", yanchor="bottom", y=1.038,
+                xanchor="right", x=1, font=dict(color='white'))))
     # add cutsom legends
     fig_goods.add_trace(
         go.Bar(

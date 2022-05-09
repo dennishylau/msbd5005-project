@@ -27,6 +27,8 @@ DESCRIBE_COVID_DEATH = '''
 
 def render_2021():
 
+    st.write('# COVID Pandemic')
+
     col11, col12 = st.columns(2)
 
     with col11:

@@ -7,7 +7,7 @@ from streamlit.scriptrunner.script_runner import RerunException
 # %% page setup & layout
 st.set_page_config(page_title='MSBD5005 Project', layout="wide")
 
-title_col, menu_col = st.columns([1, 1])
+title_col, menu_col = st.columns([1, 2])
 with title_col:
     '## MSBD5005 Project'
 
@@ -21,7 +21,8 @@ with menu_col:
     menu = option_menu(
         None, MAIN_MENU_NAMES,
         icons=['graph-up-arrow', 'bar-chart-line', 'list-ul'],
-        default_index=MAIN_MENU_NAMES.index(st.session_state['chosen_page']), orientation="horizontal")
+        default_index=MAIN_MENU_NAMES.index(st.session_state['chosen_page']),
+        orientation="horizontal")
 '---'
 
 if menu == 'Dashboard':

@@ -11,8 +11,6 @@ DESCRIBE_TRADE_WAR = '''
     Since China's entry into the World Trade Organization, China's export to the United States has grown steadily and substantially, and reached a historic high at the time in 2017.
 
     In 2018, US President Donald Trump began setting tariffs on Chinese imports in an attempt to reduce trade deficit, and to curb alleged intellectual property piracy.
-
-    ---
     '''
 
 
@@ -43,23 +41,25 @@ DESCRIBE_BALANCE_OF_TRADE = '''
 def render_2011_2020():
     st.write(DESCRIBE_TRADE_WAR)
 
-    col11, col12 = st.columns([2, 1])
+    st.write('---')
 
+    col11, col12 = st.columns([2, 1])
     with col11:
         st.plotly_chart(get_fig_dot(), use_container_width=True)
-
     with col12:
         margin(7)
         st.write(DESCRIBE_DIRECTION_OF_TRADE)
 
+    st.write('---')
+
     st.write(DESCRIBE_TREEMAP)
     write_fig_goods()
 
-    col21, col22 = st.columns([1, 2])
+    st.write('---')
 
+    col21, col22 = st.columns([1, 2])
     with col21:
         margin(7)
         st.write(DESCRIBE_BALANCE_OF_TRADE)
-
     with col22:
         st.plotly_chart(get_fig_bt(), use_container_width=True)

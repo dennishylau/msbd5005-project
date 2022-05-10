@@ -3,6 +3,10 @@ import pandas as pd
 import numpy as np
 
 
+BIN_CUTS = np.array([0, 10, 50, 100, 500, 1000, 5000, 10000])
+BIN_IDX = list(range(len(BIN_CUTS) - 1))
+
+
 def get_df_total_death():
     df = pd.read_csv('data/time_series_covid19_deaths_global.csv')
     df = df[df['Country/Region'] == 'China']
@@ -17,7 +21,12 @@ def get_df_total_death():
         where=np.logical_not(zero_mask))
     s_total_death_log[zero_mask] = 0
     df_total_death['total_death_log'] = s_total_death_log
-    return df_total_death
+    df_total_death['total_death_binned'] = pd.cut(
+        df_total_death['total_death'],
+        BIN_CUTS,
+        labels=BIN_IDX,
+        include_lowest=True, right=False)
+    return df_total_death.sort_index()
 
 
 @st.experimental_memo

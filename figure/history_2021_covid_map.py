@@ -66,6 +66,5 @@ def get_fig_covid_map(fig_height=600):
             fitbounds='locations',
             visible=False,
             bgcolor='#101116',
-            projection_type='natural earth2',
         )
     )

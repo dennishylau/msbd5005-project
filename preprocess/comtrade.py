@@ -31,10 +31,10 @@ df_comtrade['tariff'] = df_comtrade['tariff'].fillna('false')
 # short for display within treemap
 df_comtrade['Commodity_short'] = df_comtrade['Commodity'].apply(
     lambda x: '<br>'.join(
-        textwrap.wrap(x, width=80, max_lines=2, placeholder='...')))
+        textwrap.wrap(x, width=50, max_lines=1, placeholder='...')))
 df_comtrade['Commodity_agg_4_short'] = df_comtrade['Commodity_agg_4'].apply(
     lambda x: '<br>'.join(
-        textwrap.wrap(x, width=50, max_lines=2, placeholder='...')))
+        textwrap.wrap(x, width=40, max_lines=1, placeholder='...')))
 df_comtrade['Commodity_agg_6_short'] = df_comtrade['Commodity_agg_6'].apply(
     lambda x: '<br>'.join(
         textwrap.wrap(x, width=25, placeholder='...')))

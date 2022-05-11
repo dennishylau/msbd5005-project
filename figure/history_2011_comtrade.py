@@ -79,7 +79,9 @@ def write_fig_goods(height=600):
     try:
         with open('cached_html/fig_goods.html') as html:
             # get cached html to speed up rendering
-            components.html(html.read(), height=height)
+            html_str = html.read()
+            html_str = html_str.replace('(?)', 'Multiple Categories')
+            components.html(html_str, height=height)
     except FileNotFoundError:
         fig_goods = get_fig_goods(height=height)
         # write to html as cache

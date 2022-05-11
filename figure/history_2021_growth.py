@@ -3,6 +3,7 @@ from cache import dfc_china_data
 
 
 def get_fig_growth(fig_height=600):
+    val_2020 = dfc_china_data.loc[2020, 'GDP Growth (%)']
     return (
         go.Figure(
             go.Scatter(
@@ -17,7 +18,7 @@ def get_fig_growth(fig_height=600):
             spikecolor='orange',
             spikemode='toaxis+across+marker',
             type='date',
-            range=[0, 1609459200000],  # epoch time 1970-2021
+            range=[0, 1577880000000],  # epoch time 1970-2020
             rangeslider_visible=True,
             rangeselector_font_color='black',
             rangeselector_buttons=[
@@ -34,8 +35,17 @@ def get_fig_growth(fig_height=600):
         .add_vline(
             x=1577836800000,  # epoch time 2020
             line_width=3,
+            line_dash='dash', line_color='cyan')
+        .add_hline(
+            y=val_2020,
+            line_width=3,
             line_dash='dash', line_color='cyan',
-            annotation_text='2020')
+            annotation_text=f'2020: {val_2020:,.2%}',
+            annotation_position='bottom right',
+            annotation_bgcolor='rgba(255,255,255,1)',
+            annotation_xshift=-15,
+            annotation_yshift=-5,
+            annotation_font_color='black')
         .update_yaxes(
             autorange=True,
             showspikes=True,

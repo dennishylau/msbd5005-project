@@ -107,7 +107,8 @@ def plot_trade_balance_map(data, chosen_country, chosen_year, chosen_top_n=5, ch
         # add lines
         fig.add_trace(go.Scattergeo(
             locationmode='ISO-3',
-            locations=[row['Country Code ISO3'], row['Counterpart Country Code ISO3']],
+            lon=[row['longitude'], row['Counterpart longitude']],
+            lat=[row['latitude'], row['Counterpart latitude']],
             mode='lines',
             line=dict(
                 width=row['width'],

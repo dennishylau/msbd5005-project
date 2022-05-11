@@ -32,7 +32,7 @@ DESCRIBE_TREEMAP = '''
     '''
 
 DESCRIBE_BALANCE_OF_TRADE = '''
-    However, when we look at the balance of trade data of China provided by the World Bank, the United States's attempt to reduce trade deficit did not devastate China's foreign trade. In fact, after a slump in trade balance in 2018, China has started recovering in 2019. China's GDP growth maintained a respectable 6% in 2019 despite the Trade War.
+    However, when we look at the balance of trade data of China provided by the World Bank, the United States's attempt to reduce trade deficit did not devastate China's foreign trade. In fact, after a slump in trade balance in 2018, China has started recovering in 2019. China's GDP growth maintained a respectable 6.75% in 2019 despite the Trade War.
 
     In 2020, 2 years after the onset of the Trade War, China's trade balance reached historic high, while the trade balance in terms of percentage GDP remained stable. GDP Growth, however, has taken a hit from COVID-19, and was largely unrelated the remaining impact of the Trade War.
     '''

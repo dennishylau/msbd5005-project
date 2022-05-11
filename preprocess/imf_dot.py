@@ -37,6 +37,20 @@ def preprecess_imf_dot():
 
     for y in years:
         df_imf_dot[y] = df_imf_dot[y].astype(float)
+
+    lat_lon_lookup = pd.read_csv('./data/country_ISO3_lat_lon_lookup.csv')
+    lat_lon_lookup['ISO3 Code'] = lat_lon_lookup['Alpha-3 code'].str.replace('"', '').str.strip()
+    latitude_lookup_dict = lat_lon_lookup.set_index('ISO3 Code')['Latitude (average)'].str.replace('"', '').astype(
+        float).to_dict()
+    longitude_lookup_dict = lat_lon_lookup.set_index('ISO3 Code')['Longitude (average)'].str.replace('"', '').astype(
+        float).to_dict()
+
+    df_imf_dot['latitude'] = df_imf_dot['Country Code ISO3'].map(latitude_lookup_dict)
+    df_imf_dot['longitude'] = df_imf_dot['Country Code ISO3'].map(longitude_lookup_dict)
+
+    df_imf_dot['Counterpart latitude'] = df_imf_dot['Counterpart Country Code ISO3'].map(latitude_lookup_dict)
+    df_imf_dot['Counterpart longitude'] = df_imf_dot['Counterpart Country Code ISO3'].map(longitude_lookup_dict)
+
     return df_imf_dot
 
 

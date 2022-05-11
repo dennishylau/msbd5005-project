@@ -1,4 +1,3 @@
-import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 import json
@@ -61,9 +60,7 @@ def get_fig_covid_map(fig_height=600):
             margin={'r': 0, 't': 100, 'l': 0, 'b': 90}
         )
         .update_traces(
-            hovertemplate='''
-        Province: %{customdata[0]}<br><br>Total Deaths: %{customdata[1]:,.0f}<br>
-        <extra></extra>''',
+            hovertemplate='Province: %{customdata[0]}<br><br>Total Deaths: %{customdata[1]:,.0f}<br><extra></extra>',
         )
         .update_geos(
             fitbounds='locations',
